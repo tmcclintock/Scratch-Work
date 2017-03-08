@@ -1,0 +1,1 @@
+Here I am figuring out how to rotate a basis in parameter space. Specifically, if I have two parameters x and y and I have a chain representing samplings of these parameters. If I find that they are tightly (un)correlated, how can I find a rotation matrix that reduces this system to one parameter along the correlation?
