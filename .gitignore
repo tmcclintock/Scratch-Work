@@ -7,7 +7,7 @@
 RM_richness/cluster_files
 RM_richness/*.fit
 RM_richness/figures
-RM_richness/des_version
+RM_richness/des_version/*.fit
 BF_prototype/*.dat
 BF_prototype/*.png
 BF_prototype/*.npy
