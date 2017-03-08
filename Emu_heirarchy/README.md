@@ -1,0 +1,1 @@
+This is me fiddling the with the heirarchical emulator scheme. It's basically combining a bunch of emulators' predictions into one to save on inverting a huge matrix.
