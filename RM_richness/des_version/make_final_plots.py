@@ -9,7 +9,7 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 plt.rc("text",usetex=True,fontsize=24)
 
-fname = "dr8_run_runpos.fit"
+fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
 z_trues = data['Z_LAMBDA']
@@ -53,6 +53,7 @@ mid = (lam_trues >= 30) * (lam_trues < 60)
 hi = lam_trues >= 60
 labels = [r"$\lambda\in(20,30)$",r"$\lambda\in(30,60)$",r"$\lambda>60$"]
 cs = ['b','g','r']
+sigmaz_cutoff = 0.5
 
 zmeans = np.zeros((3,N_bins))
 sigmazmeans = np.zeros((3,N_bins))
@@ -60,9 +61,9 @@ szerrs = np.zeros((3,N_bins))
 for i,g in zip(xrange(0,3),[lo,mid,hi]):
     z = z_trues[g]
     sig = sigma_z_all[g]
-    z = z[sig < 0.12]
-    sig = sig[sig < 0.12]
-    zmin,zmax = 0.08,0.35#min(z),max(z)
+    z = z[sig < sigmaz_cutoff]
+    sig = sig[sig < sigmaz_cutoff]
+    zmin,zmax = min(z),max(z)
     dz = (zmax - zmin)/N_bins
     for j in range(N_bins):
         inds = (z > j*dz+zmin) * (z < (j+1)*dz+zmin)
@@ -75,9 +76,9 @@ for i,g in zip(xrange(0,3),[lo,mid,hi]):
 plt.ylabel(r"$\sigma_z$",fontsize=24)
 plt.xlabel(r"$z_{\rm true}$",fontsize=24)
 plt.subplots_adjust(bottom=0.15)
-plt.legend(loc="lower right",fontsize=16)
-plt.ylim(0,0.12)
-plt.xlim(0.07,0.4)
+plt.legend(loc=0,fontsize=16)
+plt.ylim(0,1.1*sigmaz_cutoff)
+plt.xlim(0.07,1.2)
 plt.show()
 plt.clf()
 
@@ -101,7 +102,7 @@ plt.errorbar(zmeans,sigmazmeans,marker='o')
 plt.ylabel(r"$\sigma_z$",fontsize=24)
 plt.xlabel(r"$z_{\rm true}$",fontsize=24)
 plt.subplots_adjust(bottom=0.15)
-plt.legend(loc="lower right",fontsize=16)
+plt.legend(loc=0,fontsize=16)
 plt.ylim(0,0.12)
 plt.xlim(0.07,0.4)
 plt.show()

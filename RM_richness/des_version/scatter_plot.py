@@ -8,7 +8,7 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 plt.rc("text",usetex=True,fontsize=24)
 
-fname = "dr8_run_runpos.fit"
+fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
 z_trues = data['Z_LAMBDA']
@@ -33,8 +33,8 @@ else:
     plt.scatter(z_trues[mid],sigma_z_all[mid],c='r',label=r'$\lambda\in(30,60)$',alpha=0.4)
     plt.scatter(z_trues[hi],sigma_z_all[hi],c='b',label=r'$\lambda>60$',alpha=0.3)
     plt.xlabel(r"$z_{\rm true}$",fontsize=24)
-plt.ylim(0.0,0.12)#max(sigma_z_all)*1.1)
-plt.xlim(0.07,0.4)
+plt.ylim(0.0,1.12)#max(sigma_z_all)*1.1)
+plt.xlim(0.07,1.2)
 plt.legend(loc='lower right',fontsize=16)
 plt.ylabel(r"$\sigma_z$",fontsize=24)
 plt.subplots_adjust(bottom=0.15)
