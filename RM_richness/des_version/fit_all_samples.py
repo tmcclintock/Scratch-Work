@@ -5,11 +5,11 @@ import fitsio, sys, os
 import numpy as np
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
-plt.rc("text",usetex=True,fontsize=24)
+#plt.rc("text",usetex=True,fontsize=24)
 savepath = "figures/comparison_index%d.png"
 
 #Get the input data
-fname = "dr8_run_runpos.fit"
+fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
 z_trues = data['Z_LAMBDA']
@@ -56,9 +56,9 @@ def make_comparison(sigmaz,z_true,zs,lam_data,lam_true,see_plots,index=0):
     return
 
 #Flow control
-do_plots = True
-see_plots = True
-save_outputs = False
+do_plots = False
+see_plots = False
+save_outputs = True
 
 N_samples = len(lam_trues)
 sigma_z = np.zeros((N_samples))
@@ -68,7 +68,7 @@ print N_samples
 inds = np.random.randint(0,N_samples,100)
 #print inds
 #for i in inds:
-for i in xrange(1106,1107):#N_samples):
+for i in xrange(0,N_samples):
     lam_data = lam_arrays[i]
     lam_data[lam_data<0.0] = 0.0
     x0 = [z_trues[i],0.03,lam_trues[i]]

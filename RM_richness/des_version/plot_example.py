@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.rc("text",usetex=True,fontsize=24)
 
-fname = "dr8_run_runpos.fit"
+fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
 z_trues = data['Z_LAMBDA']
@@ -39,4 +39,4 @@ def see_comparison(index):
     plt.subplots_adjust(bottom=0.15)
     plt.show()
 
-see_comparison(3901)
+see_comparison(0)
