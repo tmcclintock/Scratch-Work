@@ -12,7 +12,7 @@ savepath = "figures/comparison_index%d.png"
 fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
-z_trues = data['Z_LAMBDA']
+z_trues = data['Z_LAMBDA_IN']
 lam_arrays = data['LAMBDA_CHISQS']
 zname = 'redshift_list.txt'
 zs = np.genfromtxt(zname).flatten()

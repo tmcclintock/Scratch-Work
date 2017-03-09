@@ -11,7 +11,7 @@ plt.rc("text",usetex=True,fontsize=24)
 fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
-z_trues = data['Z_LAMBDA']
+z_trues = data['Z_LAMBDA_IN']
 lam_best = np.loadtxt("lam_best_all.txt")
 z_best = np.loadtxt("z_best_all.txt")
 sigma_z_all = np.loadtxt("sigma_z_all.txt")
@@ -35,7 +35,7 @@ else:
     plt.xlabel(r"$z_{\rm true}$",fontsize=24)
 plt.ylim(0.0,1.12)#max(sigma_z_all)*1.1)
 plt.xlim(0.07,1.2)
-plt.legend(loc='lower right',fontsize=16)
+plt.legend(loc="upper left",fontsize=16)
 plt.ylabel(r"$\sigma_z$",fontsize=24)
 plt.subplots_adjust(bottom=0.15)
 plt.show()

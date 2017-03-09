@@ -12,7 +12,7 @@ plt.rc("text",usetex=True,fontsize=24)
 fname = "y1a1_gold_1.0.3_wide+d10-mof-001b_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
-z_trues = data['Z_LAMBDA']
+z_trues = data['Z_LAMBDA_IN']
 lam_best = np.loadtxt("lam_best_all.txt")
 z_best = np.loadtxt("z_best_all.txt")
 sigma_z_all = np.loadtxt("sigma_z_all.txt")
