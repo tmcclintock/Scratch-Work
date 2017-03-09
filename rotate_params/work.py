@@ -24,6 +24,8 @@ rrD = np.dot(rD[:],v.T)
 a,b = rD.T
 print D[0],rrD[0]
 
-plt.scatter(a,b,marker=".",alpha=0.1)
+#plt.scatter(a,b,marker=".",alpha=0.1)
 #plt.scatter(d,g,marker='.',alpha=0.1)
+#plt.show()
+fig = corner.corner(np.array([a,b]).T)
 plt.show()
