@@ -10,6 +10,11 @@ import py_Delta_Sigma
 import scipy.optimize as op
 import corner
 
+single_test = True
+maxlike = True
+domc = True
+seecorner = True
+
 ndim = 2
 nwalkers, nsteps = 8, 1000
 nburn = 200
@@ -20,8 +25,8 @@ h = 0.7 #Hubble constant
 #Get in the data
 data = np.genfromtxt("profile_z0_l4.dat")[2:]
 cov = np.genfromtxt("cov_t_z0_l4.dat")
-cov = cov[2:]
-cov = cov[:,2:]
+cov = cov[2:] #limit is missing in data file
+cov = cov[:,2:]#this is only a feature of the cov
 boost = np.genfromtxt("boost_erinweight.txt")
 boost = boost[boost[:,0]==0]
 boost = boost[boost[:,1]==4]
@@ -33,6 +38,21 @@ ds = ds[:-1]
 R = R[:-1]
 cov = cov[:-1]
 cov = cov[:,:-1]
+#Figure out the cut index. This will be passed through into the likelihood
+cut_scale = 0.5 #Mpc physical
+cut = min(np.where(R>cut_scale)[0])
+R = R[cut:]
+ds = ds[cut:]
+boost = boost[cut:]
+cov = cov[cut:]
+cov = cov[:,cut:]
+print R.shape,cov.shape
+#Add 2 to the cut to signify the lower two bins
+#that were missing from the profile.dat file but WERE
+#present in the cov file. thanks, tamas
+cut += 2
+
+#Invert the cov matrix
 icov = np.linalg.inv(cov)
 
 redshift = 3.147470467649999826e-01
@@ -62,7 +82,6 @@ boost_model = 1+B0*((1+redshift)/(1+zpivot))**Dz * (richness/lampivot)**Clam * (
 cosmo = {"h":h,"om":0.3,"ok":0.0}
 cosmo["ode"]=1.0-cosmo["om"]
 
-
 #Load in the power spectra
 klin = np.genfromtxt("klin.txt")
 Plin = np.genfromtxt("Plin.txt")
@@ -71,7 +90,7 @@ Pnl  = np.genfromtxt("Pnl.txt")
 
 def lnlike(params,data_args,param_args,pk_args):
     log10M,c = params
-    ds_data,icov,boost = data_args
+    ds_data,icov,boost,cut = data_args
     A,fmis,Rmis = param_args
     klin,Plin,knl,Pnl = pk_args
 
@@ -86,7 +105,7 @@ def lnlike(params,data_args,param_args,pk_args):
     ads = return_dict['ave_delta_sigma']
     mds = return_dict['ave_miscentered_delta_sigma']
     ds = (1-fmis)*ads + fmis*mds
-    ds = ds[2:-1] #chop off lower two bins and upper bin
+    ds = ds[cut:-1] #chop off lower bins and upper bin (just for z0)
     ds *= (1+redshift)**2*h
     X = ds_data - A*ds/boost
     LL = -0.5 * np.dot(X,np.dot(icov,X))
@@ -105,14 +124,9 @@ def lnprob(params,data_args,param_args,pk_args):
     return LP + lnlike(params,data_args,param_args,pk_args)
 
 guess = [14.5,3.7]
-data_args = [ds,icov,boost_model]
+data_args = [ds,icov,boost_model,cut]
 param_args = [A,fmis,Rmis]
 pk_args = [klin,Plin,knl,Pnl]
-
-single_test = False
-maxlike = False
-domc = False
-seecorner = True
 
 if single_test:
     print lnprob(guess,data_args,param_args,pk_args)
@@ -122,23 +136,23 @@ if maxlike:
     result = op.minimize(nll,guess,args=(data_args,param_args,pk_args))
     print "Best fit:",result
     lM = result['x'][0]
-    print np.log10(10**lM*1.02/0.7)
-    np.savetxt("outputs/best_params.txt",result['x'])
+    print "True best mass (includes correction):",np.log10(10**lM*1.02/0.7)
+    np.savetxt("outputs/500kpc_best_params.txt",result['x'])
 
 if domc:
-    start = np.loadtxt("outputs/best_params.txt")
+    start = np.loadtxt("outputs/500kpc_best_params.txt")
     pos = [start + 1e-2*np.random.randn(ndim) for k in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers,ndim,lnprob,args=(data_args,param_args,pk_args))
     print "Starting emcee with %d steps"%nsteps
     sampler.run_mcmc(pos,nsteps)
     fullchain = sampler.flatchain
     likes = sampler.flatlnprobability
-    np.savetxt("outputs/fullchain.txt",fullchain)
-    np.savetxt("outputs/likes.txt",likes)
+    np.savetxt("outputs/500kpc_fullchain.txt",fullchain)
+    np.savetxt("outputs/500kpc_likes.txt",likes)
     print "Done with mcmc"
 
 if seecorner:
-    fullchain = np.loadtxt("outputs/fullchain.txt")
+    fullchain = np.loadtxt("outputs/500kpc_fullchain.txt")
     print fullchain.shape
     fullchain[:,0] = np.log10(10**fullchain[:,0]*1.02/0.7)
     chain = fullchain[nwalkers*nburn:]
