@@ -35,6 +35,8 @@ ds = data[:,1]
 R = data[:,0] #Mpc physical
 boost = boost[:-1] #
 ds = ds[:-1]
+print R
+sys.exit()
 R = R[:-1]
 cov = cov[:-1]
 cov = cov[:,:-1]

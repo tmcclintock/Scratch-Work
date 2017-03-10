@@ -18,6 +18,7 @@ BF_prototype/real_data
 BF_prototype/results
 DS_fitting/*.dat
 DS_fitting/boost*
+DS_fitting/outputs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
