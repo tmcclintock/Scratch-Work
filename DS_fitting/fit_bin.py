@@ -10,12 +10,14 @@ import py_Delta_Sigma
 import scipy.optimize as op
 import corner
 
+fit_title = "200kpc_centeringfloat"
+
 single_test = True
 maxlike = True
 domc = True
 seecorner = True
 
-ndim = 2
+ndim = 4
 nwalkers, nsteps = 8, 1000
 nburn = 200
 corner_labels = [r"$\log_{10}M$",r"$c$"]
@@ -33,26 +35,21 @@ boost = boost[boost[:,1]==4]
 boost = boost[:,3]
 ds = data[:,1]
 R = data[:,0] #Mpc physical
-boost = boost[:-1] #
-ds = ds[:-1]
-print R
-sys.exit()
-R = R[:-1]
-cov = cov[:-1]
-cov = cov[:,:-1]
-#Figure out the cut index. This will be passed through into the likelihood
-cut_scale = 0.5 #Mpc physical
-cut = min(np.where(R>cut_scale)[0])
-R = R[cut:]
-ds = ds[cut:]
-boost = boost[cut:]
-cov = cov[cut:]
-cov = cov[:,cut:]
-print R.shape,cov.shape
-#Add 2 to the cut to signify the lower two bins
+#Figure out the cut indices. These will be passed through into the likelihood
+low_cut = 0.2 #Mpc physical
+high_cut = 2.0 #Mpc physical; usual cut is 21 for z0
+cutlo = min(np.where(R>low_cut)[0])
+cuthi = max(np.where(R<high_cut)[0])+1
+R = R[cutlo:cuthi]
+ds = ds[cutlo:cuthi]
+boost = boost[cutlo:cuthi]
+cov = cov[cutlo:cuthi]
+cov = cov[:,cutlo:cuthi]
+#Add 2 to the cutlo to signify the lower two bins
 #that were missing from the profile.dat file but WERE
 #present in the cov file. thanks, tamas
-cut += 2
+cutlo += 2
+cuthi += 2
 
 #Invert the cov matrix
 icov = np.linalg.inv(cov)
@@ -91,11 +88,12 @@ knl  = np.genfromtxt("knl.txt")
 Pnl  = np.genfromtxt("Pnl.txt")
 
 def lnlike(params,data_args,param_args,pk_args):
-    log10M,c = params
-    ds_data,icov,boost,cut = data_args
-    A,fmis,Rmis = param_args
+    log10M,c,fmis,lnc = params
+    ds_data,icov,boost,cutlo,cuthi,Rlam = data_args
+    A = param_args
     klin,Plin,knl,Pnl = pk_args
 
+    Rmis = np.exp(lnc)*Rlam
     input_params = {"Mass": 10**log10M,"NR":300,"Rmin":0.01,
                     "Rmax":100.0,"Nbins":15,
                     "R_bin_min":binmin,"R_bin_max":binmax,
@@ -107,27 +105,31 @@ def lnlike(params,data_args,param_args,pk_args):
     ads = return_dict['ave_delta_sigma']
     mds = return_dict['ave_miscentered_delta_sigma']
     ds = (1-fmis)*ads + fmis*mds
-    ds = ds[cut:-1] #chop off lower bins and upper bin (just for z0)
+    ds = ds[cutlo:cuthi]
     ds *= (1+redshift)**2*h
     X = ds_data - A*ds/boost
     LL = -0.5 * np.dot(X,np.dot(icov,X))
     return LL
 
 def lnprior(params):
-    log10M,c = params
+    #log10M,c = params
+    log10M,c,fmis,lnc = params
     if log10M < 10.0: return -np.inf
     if log10M > 17.0: return -np.inf
     if c < 0.05: return -np.inf
-    return 0.0
+    lpfmis = -0.5*(0.22-fmis)**2/0.11**2
+    lplnc = -0.5*(-1.13-lnc)**2/0.22**2
+    #return 0.0
+    return lpfmis + lplnc
 
 def lnprob(params,data_args,param_args,pk_args):
     LP = lnprior(params)
     if np.isinf(LP): return LP
     return LP + lnlike(params,data_args,param_args,pk_args)
 
-guess = [14.5,3.7]
-data_args = [ds,icov,boost_model,cut]
-param_args = [A,fmis,Rmis]
+guess = [14.5,3.7,0.22,-1.13]
+data_args = [ds,icov,boost_model,cutlo,cuthi,Rlam]
+param_args = [A]
 pk_args = [klin,Plin,knl,Pnl]
 
 if single_test:
@@ -139,22 +141,22 @@ if maxlike:
     print "Best fit:",result
     lM = result['x'][0]
     print "True best mass (includes correction):",np.log10(10**lM*1.02/0.7)
-    np.savetxt("outputs/500kpc_best_params.txt",result['x'])
+    np.savetxt("outputs/%s_best_params.txt"%fit_title,result['x'])
 
 if domc:
-    start = np.loadtxt("outputs/500kpc_best_params.txt")
+    start = np.loadtxt("outputs/%s_best_params.txt"%fit_title)
     pos = [start + 1e-2*np.random.randn(ndim) for k in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers,ndim,lnprob,args=(data_args,param_args,pk_args))
     print "Starting emcee with %d steps"%nsteps
     sampler.run_mcmc(pos,nsteps)
     fullchain = sampler.flatchain
     likes = sampler.flatlnprobability
-    np.savetxt("outputs/500kpc_fullchain.txt",fullchain)
-    np.savetxt("outputs/500kpc_likes.txt",likes)
+    np.savetxt("outputs/%s_fullchain.txt"%fit_title,fullchain)
+    np.savetxt("outputs/%s_likes.txt"%fit_title,likes)
     print "Done with mcmc"
 
 if seecorner:
-    fullchain = np.loadtxt("outputs/500kpc_fullchain.txt")
+    fullchain = np.loadtxt("outputs/%s_fullchain.txt"%fit_title)
     print fullchain.shape
     fullchain[:,0] = np.log10(10**fullchain[:,0]*1.02/0.7)
     chain = fullchain[nwalkers*nburn:]
