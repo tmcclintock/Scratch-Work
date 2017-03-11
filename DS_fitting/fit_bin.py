@@ -11,16 +11,18 @@ import scipy.optimize as op
 import corner
 
 fit_title = "200kpc_centeringfloat"
+corner_labels = [r"$\log_{10}M$",r"$c$"]
+corner_labels = [r"$\log_{10}M$",r"$c$",r"$f_{\rm mis}$",r"$\ln{c}$"]
 
-single_test = True
-maxlike = True
-domc = True
+single_test = False
+maxlike = False
+domc = False
 seecorner = True
 
 ndim = 4
 nwalkers, nsteps = 8, 1000
 nburn = 200
-corner_labels = [r"$\log_{10}M$",r"$c$"]
+
 
 h = 0.7 #Hubble constant
 
@@ -165,5 +167,5 @@ if seecorner:
     import matplotlib.pyplot as plt
     plt.rc('text',usetex=True, fontsize=20)
 
-    fig = corner.corner(chain,labels=corner_labels,plot_datapoints=False,truths = [14.592,None])
+    fig = corner.corner(chain,labels=corner_labels,plot_datapoints=False,truths = [14.592,None,0.22,-1.13])
     plt.show()
