@@ -7,6 +7,9 @@
 
 #define PI 3.1415926535897
 #define ch 2998.0 //speed of light/(100 km/s/Mpc); or c*h Mpc
+#define limit 4000
+#define wssize 8000
+#define TOL 1e-2
 
 /*Get the window function squared.
 
@@ -38,6 +41,7 @@ typedef struct F_params{
   double k;
 }F_params;
 double F_integrand(double l, void*params){
+  if (l==0) return 0;
   F_params pars = *(F_params*)params;
   double theta = pars.theta;
   double k = pars.k;
@@ -55,7 +59,7 @@ double F_integrand(double l, void*params){
  */
 double F(double theta, double k){
   gsl_integration_workspace * w
-    = gsl_integration_workspace_alloc(1000);
+    = gsl_integration_workspace_alloc(wssize);
 
   double result,error;
 
@@ -67,7 +71,7 @@ double F(double theta, double k){
   F.function = &F_integrand;
   F.params = &params;
   
-  gsl_integration_qagiu(&F, 0, 1e-7, 1e-7, 1000, w, &result, &error);
+  gsl_integration_qagiu(&F, 0.001, TOL, TOL, limit, w, &result, &error);
 
   return result/k;
 }
@@ -170,7 +174,7 @@ double w_theta_integrand(double ki, void*params){
 int ang_corr(double*k, double*P, int Nk, double*theta, double*w, int Nt){
   int i, status=0;
   gsl_integration_workspace * ws
-    = gsl_integration_workspace_alloc(1000);
+    = gsl_integration_workspace_alloc(wssize);
 
   gsl_spline*Pspl = gsl_spline_alloc(gsl_interp_cspline,Nk);
   gsl_spline_init(Pspl,k,P,Nk);
@@ -197,9 +201,13 @@ int ang_corr(double*k, double*P, int Nk, double*theta, double*w, int Nt){
     result = 0;
     error = 0;
     params->theta = theta[i];
-    gsl_integration_qagui(&F, 0, 1e-7, 1e-7, 1000, ws, &result, &error);
+    printf("At i=%d\t",i);
+    gsl_integration_qagiu(&F, k[0]/100., TOL, TOL, limit, ws, &result, &error);
     w[i] = result*9./(2*PI);
+    printf("w[%d] = %e\n",i,w[i]);
+    fflush(stdout);
   }
 
   free(alpha),free(A);
+  return status;
 }

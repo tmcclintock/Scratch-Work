@@ -10,14 +10,14 @@ endif
 else
 $(info Building shared library)
 OBJS = angcorr.o
-EXEC = c_angcorr.so
+EXEC = _angcorr.so
 CFLAGS = -fPIC
 OFLAGS = -shared
 endif
 
-INCL = -I/${GSLI} -fopenmp -O3
+INCL = -I/${GSLI} -O3
 
-LIBS = -lm -lgsl -L/${GSLL} -O2
+LIBS = -lm -lgsl -lgslcblas -L/${GSLL} -O3
 
 .SUFFIXES:.c.o
 
