@@ -71,7 +71,7 @@ double F(double theta, double k){
   F.function = &F_integrand;
   F.params = &params;
   
-  gsl_integration_qagiu(&F, 0.001, TOL, TOL, limit, w, &result, &error);
+  gsl_integration_qagiu(&F, 0, TOL, TOL, limit, w, &result, &error);
 
   return result/k;
 }
@@ -202,7 +202,7 @@ int ang_corr(double*k, double*P, int Nk, double*theta, double*w, int Nt){
     error = 0;
     params->theta = theta[i];
     printf("At i=%d\t",i);
-    gsl_integration_qagiu(&F, k[0]/100., TOL, TOL, limit, ws, &result, &error);
+    gsl_integration_qagiu(&F, 0, TOL, TOL, limit, ws, &result, &error);
     w[i] = result*9./(2*PI);
     printf("w[%d] = %e\n",i,w[i]);
     fflush(stdout);
