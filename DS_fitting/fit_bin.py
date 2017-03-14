@@ -10,9 +10,9 @@ import py_Delta_Sigma
 import scipy.optimize as op
 import corner
 
-fit_title = "200kpc_centeringfloat"
+fit_title = "200kpc_centeringfixed"
 corner_labels = [r"$\log_{10}M$",r"$c$"]
-corner_labels = [r"$\log_{10}M$",r"$c$",r"$f_{\rm mis}$",r"$\ln{c}$"]
+#corner_labels = [r"$\log_{10}M$",r"$c$",r"$f_{\rm mis}$",r"$\ln{c}$"]
 
 single_test = False
 maxlike = False
@@ -163,7 +163,9 @@ if seecorner:
     fullchain[:,0] = np.log10(10**fullchain[:,0]*1.02/0.7)
     chain = fullchain[nwalkers*nburn:]
     stds = np.sqrt(np.var(chain,0))
-    print stds
+    means = np.mean(chain,0)
+    print means[0]
+    print stds[0]
     import matplotlib.pyplot as plt
     plt.rc('text',usetex=True, fontsize=20)
 
