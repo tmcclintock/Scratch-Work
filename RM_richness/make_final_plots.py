@@ -9,6 +9,8 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 plt.rc("text",usetex=True,fontsize=24)
 
+olddata = np.loadtxt("sigma_z_vs_z.dat")
+
 fname = "dr8_run_runpos.fit"
 data,header = fitsio.read(fname,header=True)
 lam_trues = data['LAMBDA_CHISQ']
@@ -20,7 +22,7 @@ sigma_z_all = np.loadtxt("sigma_z_all.txt")
 N_bins = 10
 edges = np.linspace(min(z_trues),max(z_trues)+0.00001,N_bins+1)
 
-make_cluster_files = True
+make_cluster_files = False
 cpath = "cluster_files/clusters_%d.txt"
 if make_cluster_files:
     cluster_files = []
@@ -75,9 +77,14 @@ for i,g in zip(xrange(0,3),[lo,mid,hi]):
 plt.ylabel(r"$\sigma_z$",fontsize=24)
 plt.xlabel(r"$z_{\rm true}$",fontsize=24)
 plt.subplots_adjust(bottom=0.15)
-plt.legend(loc="lower right",fontsize=16)
 plt.ylim(0,0.12)
-plt.xlim(0.07,0.4)
+plt.xlim(0.07,0.56)
+
+print olddata[:,0]
+plt.plot(olddata[:,0],olddata[:,1],label="old data")
+
+leg = plt.legend(loc="lower right",fontsize=16)
+leg.get_frame().set_alpha(0.5)
 plt.show()
 plt.clf()
 
