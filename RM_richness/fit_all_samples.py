@@ -5,7 +5,7 @@ import fitsio, sys, os
 import numpy as np
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
-plt.rc("text",usetex=True,fontsize=24)
+plt.rc("text",fontsize=24)
 savepath = "figures/comparison_index%d.png"
 
 #Get the input data
@@ -32,8 +32,6 @@ def total_diff(params,zs,lams):
     inds = lams > max(lams)/10.0
     X = np.fabs(lams-lam_model)**2/lam_model**2
     ret_value = sum(X[inds])
-    #return np.sum(np.fabs(lams-lam_model)/lam_model)
-    #return np.sum(np.fabs(lams-lam_model)**2/lam_model**2)
     return ret_value
 
 #The plotting functio
@@ -56,8 +54,8 @@ def make_comparison(sigmaz,z_true,zs,lam_data,lam_true,see_plots,index=0):
     return
 
 #Flow control
-do_plots = True
-see_plots = True
+do_plots = False
+see_plots = False
 save_outputs = False
 
 N_samples = len(lam_trues)
@@ -68,7 +66,7 @@ print N_samples
 inds = np.random.randint(0,N_samples,100)
 #print inds
 #for i in inds:
-for i in xrange(1106,1107):#N_samples):
+for i in xrange(0,N_samples):
     lam_data = lam_arrays[i]
     lam_data[lam_data<0.0] = 0.0
     x0 = [z_trues[i],0.03,lam_trues[i]]
@@ -77,7 +75,7 @@ for i in xrange(1106,1107):#N_samples):
     #print result
     z_best[i],sigma_z[i],lam_best[i] = result['x']
     print "Cluster %d sigmaz = %f"%(i,sigma_z[i])
-    if do_plots:
+    if do_plots or 0.23<z_trues[i]<0.24:
         print "Creating figure for cluster %d"%i
         make_comparison(sigma_z[i],z_best[i],zs,lam_data,lam_best[i],see_plots,index=i)
     continue #end i

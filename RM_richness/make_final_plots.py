@@ -78,10 +78,16 @@ plt.ylabel(r"$\sigma_z$",fontsize=24)
 plt.xlabel(r"$z_{\rm true}$",fontsize=24)
 plt.subplots_adjust(bottom=0.15)
 plt.ylim(0,0.12)
-plt.xlim(0.07,0.56)
+plt.xlim(0.07,0.36)#0.56)
 
-print olddata[:,0]
-plt.plot(olddata[:,0],olddata[:,1],label="old data")
+plt.plot([0.2,0.2],[0,0.12],c='r')
+plt.plot([0.21,0.21],[0,0.12],c='r')
+
+plt.plot([0.23,0.23],[0,0.12],c='b')
+plt.plot([0.24,0.24],[0,0.12],c='b')
+
+#print olddata[:,0]
+#plt.plot(olddata[:,0],olddata[:,1],label="old data")
 
 leg = plt.legend(loc="lower right",fontsize=16)
 leg.get_frame().set_alpha(0.5)
