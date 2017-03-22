@@ -1,8 +1,8 @@
 import sys,os
 import numpy as np
-sys.path.insert(0,"../../Mass-Function-Emulator/")
+sys.path.insert(0,"../../../Mass-Function-Emulator/")
 import rot_mf_emulator as MFE
-sys.path.insert(0,'../../Mass-Function-Emulator/visualization/')
+sys.path.insert(0,'../../../Mass-Function-Emulator/visualization/')
 import visualize
 
 
@@ -12,7 +12,7 @@ redshifts = 1./scale_factors - 1.0
 volume = 1050.**3 #[Mpc/h]^3
 
 #Read in the input cosmologies
-cosmologies = np.genfromtxt("./test_data/building_cosmos_all_params.txt")
+cosmologies = np.genfromtxt("../test_data/building_cosmos_all_params.txt")
 cosmologies = np.delete(cosmologies,5,1) #Delete ln10As
 cosmologies = np.delete(cosmologies,0,1) #Delete boxnum
 cosmologies = np.delete(cosmologies,-1,0)#39 is broken
@@ -20,8 +20,8 @@ N_cosmologies = len(cosmologies)
 N_z = len(redshifts)
 
 #Read in the input data
-means = np.loadtxt("./full_training_data/rotated_mean_models.txt")
-variances = np.loadtxt("./full_training_data/rotated_var_models.txt")
+means = np.loadtxt("../full_training_data/rotated_mean_models.txt")
+variances = np.loadtxt("../full_training_data/rotated_var_models.txt")
 data = np.ones((N_cosmologies,len(means[0]),2)) #Last column is for mean/errs
 data[:,:,0] = means
 data[:,:,1] = np.sqrt(variances)
@@ -40,10 +40,10 @@ for i in xrange(0,N_cosmologies):
     emu.train(training_cosmos,training_data)
     
     for j in xrange(0,N_z):
-        MF_data = np.genfromtxt("../../../all_MF_data/building_MF_data/full_mf_data/Box%03d_full/Box%03d_full_Z%d.txt"%(i,i,j))
+        MF_data = np.genfromtxt("../../../../all_MF_data/building_MF_data/full_mf_data/Box%03d_full/Box%03d_full_Z%d.txt"%(i,i,j))
         lM_bins = MF_data[:,:2]
         N_data = MF_data[:,2]
-        cov_data = np.genfromtxt("../../../all_MF_data/building_MF_data/covariances/Box%03d_cov/Box%03d_cov_Z%d.txt"%(i,i,j))
+        cov_data = np.genfromtxt("../../../../all_MF_data/building_MF_data/covariances/Box%03d_cov/Box%03d_cov_Z%d.txt"%(i,i,j))
         N_err = np.sqrt(np.diagonal(cov_data))
 
         n = emu.predict_mass_function(test_cosmo,redshift=redshifts[j],lM_bins=lM_bins)
