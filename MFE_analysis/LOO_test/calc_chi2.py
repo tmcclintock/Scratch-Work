@@ -12,7 +12,7 @@ redshifts = 1./scale_factors - 1.0
 volume = 1050.**3 #[Mpc/h]^3
 
 #Read in the input cosmologies
-cosmologies = np.genfromtxt("../test_data/building_cosmos_all_params.txt")
+cosmologies = np.genfromtxt("../test_data/building_cosmos.txt")
 cosmologies = np.delete(cosmologies,5,1) #Delete ln10As
 cosmologies = np.delete(cosmologies,0,1) #Delete boxnum
 cosmologies = np.delete(cosmologies,-1,0)#39 is broken
