@@ -29,6 +29,8 @@ data[:,:,1] = np.sqrt(variances)
 chi2s = np.zeros((N_cosmologies,N_z))
 Nfp = np.zeros((N_cosmologies,N_z))
 
+MF_path = "../../../../all_MF_data/"
+
 #Loop over all boxes
 for i in xrange(0,N_cosmologies):
     test_cosmo = cosmologies[i]
@@ -40,10 +42,10 @@ for i in xrange(0,N_cosmologies):
     emu.train(training_cosmos,training_data)
     
     for j in xrange(0,N_z):
-        MF_data = np.genfromtxt("../../../../all_MF_data/building_MF_data/full_mf_data/Box%03d_full/Box%03d_full_Z%d.txt"%(i,i,j))
+        MF_data = np.genfromtxt(MF_path+"/building_MF_data/full_mf_data/Box%03d_full/Box%03d_full_Z%d.txt"%(i,i,j))
         lM_bins = MF_data[:,:2]
         N_data = MF_data[:,2]
-        cov_data = np.genfromtxt("../../../../all_MF_data/building_MF_data/covariances/Box%03d_cov/Box%03d_cov_Z%d.txt"%(i,i,j))
+        cov_data = np.genfromtxt(MF_path+"/building_MF_data/covariances/Box%03d_cov/Box%03d_cov_Z%d.txt"%(i,i,j))
         N_err = np.sqrt(np.diagonal(cov_data))
 
         n = emu.predict_mass_function(test_cosmo,redshift=redshifts[j],lM_bins=lM_bins)
@@ -55,6 +57,6 @@ for i in xrange(0,N_cosmologies):
         Nfp[i,j] = len(n)
 
         lM = np.log10(np.mean(10**lM_bins,1))
-        #visualize.NM_plot(lM,N_data,N_err,lM,N_emu)
-np.savetxt("chi2s.txt",chi2s)
-np.savetxt("Nfp.txt",Nfp)
+        visualize.NM_plot(lM,N_data,N_err,lM,N_emu)
+#np.savetxt("chi2s.txt",chi2s)
+#np.savetxt("Nfp.txt",Nfp)
