@@ -83,8 +83,8 @@ plt.xlim(0.07,0.36)#0.56)
 plt.plot([0.2,0.2],[0,0.12],c='r')
 plt.plot([0.21,0.21],[0,0.12],c='r')
 
-plt.plot([0.23,0.23],[0,0.12],c='b')
-plt.plot([0.24,0.24],[0,0.12],c='b')
+plt.plot([0.3,0.3],[0,0.12],c='b')
+plt.plot([0.31,0.31],[0,0.12],c='b')
 
 #print olddata[:,0]
 #plt.plot(olddata[:,0],olddata[:,1],label="old data")

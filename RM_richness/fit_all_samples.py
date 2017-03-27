@@ -29,7 +29,7 @@ def total_diff(params,zs,lams):
     if sigmaz < 0.005: return np.inf #Avoids numerical issues
     lam_model = get_lam_model(zs,sigmaz,z_true,lam_true)
     #if any(lam_model == 0.0): return np.inf #Avoids numerical issues
-    inds = lams > max(lams)/10.0
+    inds = lams > max(lams)/2.0 #Only the top half
     X = np.fabs(lams-lam_model)**2/lam_model**2
     ret_value = sum(X[inds])
     return ret_value
@@ -71,11 +71,11 @@ for i in xrange(0,N_samples):
     lam_data[lam_data<0.0] = 0.0
     x0 = [z_trues[i],0.03,lam_trues[i]]
     theargs = (zs,lam_data)
-    result = minimize(total_diff,x0=x0,args=theargs,method='Nelder-Mead')
-    #print result
-    z_best[i],sigma_z[i],lam_best[i] = result['x']
-    print "Cluster %d sigmaz = %f"%(i,sigma_z[i])
-    if do_plots or 0.23<z_trues[i]<0.24:
+#    if do_plots or 0.2<z_trues[i]<0.21:
+    if do_plots or 0.3<z_trues[i]<0.31:
+        result = minimize(total_diff,x0=x0,args=theargs,method='Nelder-Mead')
+        z_best[i],sigma_z[i],lam_best[i] = result['x']
+        print "Cluster %d sigmaz = %f"%(i,sigma_z[i])
         print "Creating figure for cluster %d"%i
         make_comparison(sigma_z[i],z_best[i],zs,lam_data,lam_best[i],see_plots,index=i)
     continue #end i
