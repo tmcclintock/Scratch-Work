@@ -8,7 +8,7 @@ data,header = fitsio.read(fname,header=True)
 sigz = np.loadtxt("sigma_z_all.txt")
 z = data['Z_LAMBDA']
 
-inds = np.where((z<0.24)*(z>0.23))[0]
+inds = np.where((z>0.3)*(z<0.31))[0]
 z = z[inds]
 sigz = sigz[inds]
 isort = np.argsort(sigz)

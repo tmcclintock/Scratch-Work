@@ -5,7 +5,7 @@ import fitsio, sys, os
 import numpy as np
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
-plt.rc("text",fontsize=24)
+plt.rc("text",usetex=True,fontsize=24)
 savepath = "figures/comparison_index%d.png"
 
 #Get the input data
@@ -47,15 +47,15 @@ def make_comparison(sigmaz,z_true,zs,lam_data,lam_true,see_plots,index=0):
     plt.gcf().savefig(savepath%index)
     ylim = plt.gca().get_ylim()
     plt.ylim(-10,ylim[1])
-    plt.subplots_adjust(bottom=0.15)
+    plt.subplots_adjust(bottom=0.15,left=0.15)
     if see_plots:
         plt.show()
     plt.clf()
     return
 
 #Flow control
-do_plots = False
-see_plots = False
+do_plots = True
+see_plots = True
 save_outputs = False
 
 N_samples = len(lam_trues)
@@ -78,6 +78,7 @@ for i in xrange(0,N_samples):
         print "Cluster %d sigmaz = %f"%(i,sigma_z[i])
         print "Creating figure for cluster %d"%i
         make_comparison(sigma_z[i],z_best[i],zs,lam_data,lam_best[i],see_plots,index=i)
+    sys.exit()
     continue #end i
 
 if save_outputs:
