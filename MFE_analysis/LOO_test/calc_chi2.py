@@ -31,6 +31,9 @@ Nfp = np.zeros((N_cosmologies,N_z))
 
 MF_path = "../../../../all_MF_data/"
 
+percent = 10
+per = percent/100.
+
 #Loop over all boxes
 for i in xrange(0,N_cosmologies):
     test_cosmo = cosmologies[i]
@@ -50,6 +53,12 @@ for i in xrange(0,N_cosmologies):
 
         n = emu.predict_mass_function(test_cosmo,redshift=redshifts[j],lM_bins=lM_bins)
         N_emu = n*volume
+
+        add_uncertainty = True
+        if add_uncertainty:
+            for ii in xrange(0,len(N_data)):
+                for jj in xrange(0,len(N_data)):
+                    cov_data[ii,jj] += per**2 * N_emu[ii] * N_emu[jj]
         
         chi2 = np.dot((N_data-N_emu),np.dot(np.linalg.inv(cov_data),(N_data-N_emu)))
         print "%d,%d chi2 = %f / %d"%(i,j,chi2,len(n))
@@ -57,6 +66,25 @@ for i in xrange(0,N_cosmologies):
         Nfp[i,j] = len(n)
 
         lM = np.log10(np.mean(10**lM_bins,1))
-        visualize.NM_plot(lM,N_data,N_err,lM,N_emu)
-#np.savetxt("chi2s.txt",chi2s)
-#np.savetxt("Nfp.txt",Nfp)
+        #visualize.NM_plot(lM,N_data,N_err,lM,N_emu)
+np.savetxt("chi2s_p%dpc.txt"%percent,chi2s)
+np.savetxt("Nfp.txt",Nfp)
+
+
+import matplotlib.pyplot as plt
+from scipy.stats import chi2
+plt.rc('text',usetex=True, fontsize=20)
+
+chi2s = np.loadtxt("chi2s_p%dpc.txt"%percent).flatten()
+Nfp = np.loadtxt("Nfp.txt")
+
+plt.hist(chi2s,20,normed=True) #Make the histogram
+df = np.mean(Nfp)
+mean,var,skew,kurt = chi2.stats(df,moments='mvsk')
+x = np.linspace(chi2.ppf(0.01,df),chi2.ppf(0.99,df),100)
+plt.plot(x,chi2.pdf(x,df))
+plt.xlabel(r"$\chi^2$",fontsize=24)
+plt.xlim(0,80)
+plt.ylim(0,0.1)
+plt.subplots_adjust(bottom=0.15)
+plt.show()
