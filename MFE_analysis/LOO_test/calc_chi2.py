@@ -20,8 +20,8 @@ N_cosmologies = len(cosmologies)
 N_z = len(redshifts)
 
 #Read in the input data
-means = np.loadtxt("../full_training_data/rotated_mean_models.txt")
-variances = np.loadtxt("../full_training_data/rotated_var_models.txt")
+means = np.loadtxt("../full_training_data/rotated_dfg_means.txt")
+variances = np.loadtxt("../full_training_data/rotated_dfg_vars.txt")
 data = np.ones((N_cosmologies,len(means[0]),2)) #Last column is for mean/errs
 data[:,:,0] = means
 data[:,:,1] = np.sqrt(variances)
@@ -31,6 +31,7 @@ Nfp = np.zeros((N_cosmologies,N_z))
 
 MF_path = "../../../../all_MF_data/"
 
+add_uncertainty = True
 percent = 10
 per = percent/100.
 
@@ -54,7 +55,6 @@ for i in xrange(0,N_cosmologies):
         n = emu.predict_mass_function(test_cosmo,redshift=redshifts[j],lM_bins=lM_bins)
         N_emu = n*volume
 
-        add_uncertainty = True
         if add_uncertainty:
             for ii in xrange(0,len(N_data)):
                 for jj in xrange(0,len(N_data)):
@@ -67,7 +67,11 @@ for i in xrange(0,N_cosmologies):
 
         lM = np.log10(np.mean(10**lM_bins,1))
         #visualize.NM_plot(lM,N_data,N_err,lM,N_emu)
-np.savetxt("chi2s_p%dpc.txt"%percent,chi2s)
+
+if add_uncertainty:
+    np.savetxt("chi2s_p%dpc.txt"%percent,chi2s)
+else:
+    np.savetxt("chi2s.txt",chi2s)
 np.savetxt("Nfp.txt",Nfp)
 
 
@@ -75,7 +79,10 @@ import matplotlib.pyplot as plt
 from scipy.stats import chi2
 plt.rc('text',usetex=True, fontsize=20)
 
-chi2s = np.loadtxt("chi2s_p%dpc.txt"%percent).flatten()
+if add_uncertainty:
+    chi2s = np.loadtxt("chi2s_p%dpc.txt"%percent).flatten()
+else:
+    chi2s = np.loadtxt("chi2s.txt").flatten()
 Nfp = np.loadtxt("Nfp.txt")
 
 plt.hist(chi2s,20,normed=True) #Make the histogram
