@@ -21,7 +21,7 @@ p = np.var(x, 0)
 meanx = np.mean(x, 0) #The mean cosmo
 varx = np.var(x, 0)
 for i in range(len(meanx)):
-    print meanx[i], np.sqrt(varx[i])
+    print meanx[i], np.sqrt(varx[i]), varx[i]
 
 print y.shape, yerr.shape, x.shape
 
@@ -33,10 +33,12 @@ from george.kernels import ExpKernel
 #kernel = ExpKernel(np.sqrt(varx), ndim=len(meanx))
 kernel = ExpSquaredKernel(varx, ndim=len(meanx))
 #kernel = ExpSquaredKernel(1.0, ndim=len(meanx))
+print "pars:",kernel.pars
 gp = george.GP(kernel)
 
 # Pre-compute the factorization of the matrix.
 gp.compute(x, yerr)
+print "pars:",kernel.pars
 
 # Compute the log likelihood.
 print(gp.lnlikelihood(y))
