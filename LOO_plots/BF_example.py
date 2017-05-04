@@ -30,7 +30,7 @@ volume = 1050.**3 #[Mpc/h]^3
 cosmologies = np.genfromtxt("cosmos.txt")
 
 #This contains our parameterization
-name = 'defg'
+name = 'fg'
 base_dir = "../../fit_mass_functions/output/%s/"%name
 base_save = base_dir+"%s_"%name
 best_fit_models = np.loadtxt(base_save+"bests.txt")
@@ -41,6 +41,16 @@ def get_params(model, sf):
         d0,d1,e0,e1,f0,f1,g0,g1 = model
     if name is 'dfg':
         d0,d1,f0,f1,g0,g1 = model
+        e0 = Tinker_defaults['e']
+        e1 = 0.0
+    if name is 'efg':
+        e0,e1,f0,f1,g0,g1 = model
+        d0 = Tinker_defaults['d']
+        d1 = 0.0
+    if name is 'fg':
+        f0,f1,g0,g1 = model
+        d0 = Tinker_defaults['d']
+        d1 = 0.0
         e0 = Tinker_defaults['e']
         e1 = 0.0
     k = sf - 0.5
@@ -71,8 +81,8 @@ for i in range(0,1):
         axarr[0].errorbar(lM, N, err, marker='.', ls='', c=cmap(c[j]), alpha=1.0, label=r"$z=%.1f$"%redshifts[j])
 
         #Now get the BF and plot it.
-        TMF_model = TMF.tinker_mass_function(cosmo_dict,redshifts[j])
-        d,e,f,g = get_params(best_fit_models[i],scale_factors[j])
+        TMF_model = TMF.tinker_mass_function(cosmo_dict, redshifts[j])
+        d,e,f,g = get_params(best_fit_models[i], scale_factors[j])
         TMF_model.set_parameters(d,e,f,g)
         N_bf = volume * TMF_model.n_in_bins(lM_bins)
         axarr[0].plot(lM, N_bf, ls='--', c=cmap(c[j]), alpha=1.0)

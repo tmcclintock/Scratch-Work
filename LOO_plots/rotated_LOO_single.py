@@ -1,7 +1,7 @@
 """
 Here I create the 'best fit' example, for one cosmology.
 
-This is Figure 4.
+This is Figure 6.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,7 +23,8 @@ def train(training_cosmos, training_data, training_errs):
     return emulator_list
 
 def predict_parameters(cosmology, emu_list):
-    return np.array([emu.predict_one_point(cosmology)[0] for emu in emu_list])
+    params = np.array([emu.predict_one_point(cosmology)[0] for emu in emu_list])
+    return np.dot(R, params)
 
 xlabel  = r"$\log_{10}M\ [{\rm M_\odot}/h]$"
 y0label = r"$N/[{\rm Gpc}^3\  \log_{10}{\rm M_\odot}/h]$"
@@ -50,10 +51,13 @@ building_cosmos = np.delete(building_cosmos, -1, 0)#39 is broken
 
 #This contains our parameterization
 name = 'dfg'
-base_dir = "../../fit_mass_functions/output/%s/"%name
-base_save = base_dir+"%s_"%name
+base_dir = "../../fit_mass_functions/output/%s_rotated/"%name
+base_save = base_dir+"rotated_%s_"%name
 mean_models = np.loadtxt(base_save+"means.txt")
 err_models = np.sqrt(np.loadtxt(base_save+"vars.txt"))
+
+#The rotation matrix
+R = np.genfromtxt(base_dir+"R_matrix.txt")
 
 def get_params(model, sf):
     Tinker_defaults = {'d':1.97, 'e':1.0, "f": 0.51, 'g':1.228}
@@ -134,5 +138,5 @@ axarr[1].set_ylim(-18, 18)
 leg = axarr[0].legend(loc=0, fontsize=10, numpoints=1, frameon=False)
 leg.get_frame().set_alpha(0.5)
 plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
-fig.savefig("fig4_emubad.png")
+fig.savefig("fig6_emurot.png")
 plt.show()
