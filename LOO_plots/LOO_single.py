@@ -46,6 +46,7 @@ volume = 1050.**3 #[Mpc/h]^3
 cosmos = np.genfromtxt("cosmos.txt")
 
 building_cosmos = np.delete(cosmos, 0, 1) #Delete boxnum
+building_cosmos = np.delete(building_cosmos, 4, 1) #Delete ln10As
 building_cosmos = np.delete(building_cosmos, -1, 0)#39 is broken
 
 #This contains our parameterization
@@ -134,5 +135,5 @@ axarr[1].set_ylim(-18, 18)
 leg = axarr[0].legend(loc=0, fontsize=10, numpoints=1, frameon=False)
 leg.get_frame().set_alpha(0.5)
 plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
-fig.savefig("fig4_emubad.png")
+fig.savefig("fig4_emubad.pdf")
 plt.show()

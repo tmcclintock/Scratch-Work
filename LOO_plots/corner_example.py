@@ -10,7 +10,7 @@ import corner
 from chainconsumer import ChainConsumer
 
 name = 'dfg_rotated'
-rotated = True
+rotated = name.find("rotated") != -1
 corner_labels = []
 for i,l in zip(range(len(name)), name.split("_")[0]):
     if rotated:
@@ -42,7 +42,7 @@ for i in range(1): #N_cosmos):
     fig = ChainConsumer().add_chain(chain, parameters=corner_labels).plot()
     plt.subplots_adjust(bottom=0.15, left=0.15)
     if not rotated:
-        fig.savefig("fig3_corner.png")
+        fig.savefig("fig3_corner.pdf")
     else:
-        fig.savefig("fig5_Rcorner.png")
+        fig.savefig("fig5_Rcorner.pdf")
     plt.show()
