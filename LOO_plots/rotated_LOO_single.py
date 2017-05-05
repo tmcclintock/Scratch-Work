@@ -1,7 +1,5 @@
 """
 Here I create the 'best fit' example, for one cosmology.
-
-This is Figure 6.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -139,5 +137,5 @@ axarr[1].set_ylim(-18, 18)
 leg = axarr[0].legend(loc=0, fontsize=10, numpoints=1, frameon=False)
 leg.get_frame().set_alpha(0.5)
 plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
-fig.savefig("fig6_emurot.pdf")
+fig.savefig("fig_emurot.pdf")
 plt.show()

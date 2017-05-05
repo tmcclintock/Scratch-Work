@@ -1,1 +1,0 @@
-Here I am developing some jupyter notebooks that I will share with people in our group to help them make better figuers, do MCMC, and other tasks.

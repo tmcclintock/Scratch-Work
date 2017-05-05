@@ -42,7 +42,7 @@ for i in range(1): #N_cosmos):
     fig = ChainConsumer().add_chain(chain, parameters=corner_labels).plot()
     plt.subplots_adjust(bottom=0.15, left=0.15)
     if not rotated:
-        fig.savefig("fig3_corner.pdf")
+        fig.savefig("fig_corner.pdf")
     else:
-        fig.savefig("fig5_Rcorner.pdf")
+        fig.savefig("fig_Rcorner.pdf")
     plt.show()
