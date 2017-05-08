@@ -3,6 +3,7 @@ Now to analyze the power spectra I have.
 """
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rc("text", usetex=True)
 
 #Read in the clusters
 cpath = "cluster_files/clusters_z0l4.txt"
