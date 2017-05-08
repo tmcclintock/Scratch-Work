@@ -30,7 +30,7 @@ volume = 1050.**3 #[Mpc/h]^3
 cosmologies = np.genfromtxt("cosmos.txt")
 
 #This contains our parameterization
-name = 'dfg'
+name = 'defg'
 base_dir = "../../fit_mass_functions/output/%s/"%name
 base_save = base_dir+"%s_"%name
 best_fit_models = np.loadtxt(base_save+"bests.txt")

@@ -49,7 +49,7 @@ building_cosmos = np.delete(building_cosmos, 4, 1) #Delete ln10As
 building_cosmos = np.delete(building_cosmos, -1, 0)#39 is broken
 
 #This contains our parameterization
-name = 'dfg'
+name = 'defg'
 base_dir = "../../fit_mass_functions/output/%s_rotated/"%name
 base_save = base_dir+"rotated_%s_"%name
 mean_models = np.loadtxt(base_save+"means.txt")

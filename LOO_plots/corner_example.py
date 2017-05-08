@@ -9,7 +9,8 @@ plt.rc('text', usetex=True, fontsize=24)
 import corner
 from chainconsumer import ChainConsumer
 
-name = 'dfg_rotated'
+#name = 'defg_rotated'
+name = 'defg'
 rotated = name.find("rotated") != -1
 corner_labels = []
 for i,l in zip(range(len(name)), name.split("_")[0]):
