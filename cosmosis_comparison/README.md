@@ -1,0 +1,1 @@
+I am comparing the outputs of the cosmosis code to some of my own code.
