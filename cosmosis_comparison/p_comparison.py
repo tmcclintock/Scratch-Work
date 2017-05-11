@@ -42,8 +42,9 @@ params = {
 cosmo = Class()
 cosmo.set(params)
 #cosmo.set_default()
-cosmo.compute()
+#cosmo.compute()
 #print "pars:",cosmo.pars
+"""
 print "\n"
 print "Neff:",cosmo.Neff()
 print "H?:  ",cosmo.Hubble(1.0)
@@ -52,35 +53,40 @@ print "Ob:  ",cosmo.Omega_b()
 print "Om:  ",cosmo.Omega_m()
 print "O0m: ",cosmo.Omega0_m()
 print "Tcmb:",cosmo.T_cmb()
+"""
 
-#sys.exit()
 
 k = np.logspace(-5, 3, base=10, num=4000)
 for i in range(len(zs)):
     z = zs[i]
 
-    Pmm  = np.array([cosmo.pk(ki, z) for ki in k])
-    Plin = np.array([cosmo.pk_lin(ki, z) for ki in k])
+    k = np.loadtxt("../../fox_calibration/txt_files/P_files/k.txt")
+    Pmm  = np.loadtxt("../../fox_calibration/txt_files/P_files/Pnl_z%.2f.txt"%(z))
+    Plin = np.loadtxt("../../fox_calibration/txt_files/P_files/Plin_z%.2f.txt"%(z))
+    #Pmm  = np.array([cosmo.pk(ki, z) for ki in k])
+    #Plin = np.array([cosmo.pk_lin(ki, z) for ki in k])
 
     kmmc = np.loadtxt("cosmosis_outputs/knl_z%.2f.txt"%z)
     Pmmc = np.loadtxt("cosmosis_outputs/pnl_z%.2f.txt"%z)
     klinc = np.loadtxt("cosmosis_outputs/klin_z%.2f.txt"%z)
     Plinc = np.loadtxt("cosmosis_outputs/plin_z%.2f.txt"%z)
 
-    s8class = cosmo.sigma8()
-    s8camb  = 0.83495
-    fix = s8camb**2/s8class**2
+    #s8class = cosmo.sigma8()
+    #s8camb  = 0.83495
+    #fix = s8camb**2/s8class**2
     
     cosspl = IUS(klinc, Plinc)
     claspl = IUS(k, Plin)
     kratio = 0.001
     ratio = cosspl(kratio)/ claspl(kratio)
 #    ratio = 0.756
-    print "sigma8 = ", cosmo.sigma8()
+    #print "sigma8 = ", cosmo.sigma8()
     print "z=%.2f  ratio=%f  "%(z, ratio)
 
-    plt.loglog(k/h, Pmm*h**3, label="class nl")
-    plt.loglog(k/h, Plin*h**3, label="class lin")
+    #plt.loglog(k/h, Pmm*h**3, label="class nl")
+    #plt.loglog(k/h, Plin*h**3, label="class lin")
+    plt.loglog(k, Pmm, label="class nl")
+    plt.loglog(k, Plin, label="class lin")
     plt.loglog(kmmc, Pmmc, label="camb nl")
     plt.loglog(klinc, Plinc, label="camb lin")
     plt.legend(loc=0)
