@@ -4,6 +4,7 @@ Fit the Y1 boost factors given by tamas.
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as op
+plt.rc("text", usetex=True, fontsize=20)
 
 #Boost model
 def model(params, l, z, R):
@@ -31,7 +32,7 @@ def lnprob(params, lams, zs, R, Bp1, Berr):
     return lnp + lnlike(params, lams, zs, R, Bp1, Berr)
 
 def get_data(zs):
-    datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/blinded_data/v1/full-mcal-urem_y1clust_l%d_z%d_pz_boost.dat"
+    datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
     #Read in all data
     Bp1  = []
     Berr = []
@@ -76,9 +77,9 @@ if __name__ == "__main__":
         for j in range(len(zs[i])):
             Bmodel = model(params, lams[i,j], zs[i,j], R[i][j])
             col = plt.get_cmap(cmaps[i])(c[j])
-            axarr[i].errorbar(R[i][j], Bp1[i][j], Berr[i][j], c=col)
+            axarr[i].errorbar(R[i][j], Bp1[i][j], Berr[i][j], c=col, ls='', marker='o')
             axarr[i].plot(R[i][j], Bmodel, c=col, label="l%d"%j)
-            axarr[i].set_ylabel(r"$B(z=%.2f)$"%zs[i,0])
+            axarr[i].set_ylabel(r"$B(z=%.2f)$"%zs[i,0], fontsize=14)
     plt.subplots_adjust(hspace=0.05, left=0.15, bottom=0.15)
     plt.xlabel(r"$R\ [{\rm Mpc}]$")
     plt.xscale('log')
