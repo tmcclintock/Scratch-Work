@@ -1,3 +1,5 @@
+lss_cov/*.txt
+
 LOO_plots/*.png
 
 *a.out
