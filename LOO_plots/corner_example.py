@@ -10,10 +10,13 @@ import corner
 from chainconsumer import ChainConsumer
 
 #name = 'defg_rotated'
-name = 'defg'
+name = 'dfgB'
 rotated = name.find("rotated") != -1
 corner_labels = []
 for i,l in zip(range(len(name)), name.split("_")[0]):
+    if l == "B":
+        corner_labels.append(r"$%s$"%l)
+        continue
     if rotated:
         corner_labels.append(r"$%s_0'$"%l)
         corner_labels.append(r"$%s_1'$"%l)

@@ -5,7 +5,7 @@ This is Figure 2.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-plt.rc('text', usetex=True, fontsize=24)
+plt.rc('text', usetex=True, fontsize=20)
 import tinker_mass_function as TMF
 
 xlabel  = r"$\log_{10}M\ [{\rm M_\odot}/h]$"

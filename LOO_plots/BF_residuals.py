@@ -29,13 +29,18 @@ volume = 1050.**3 #[Mpc/h]^3
 cosmos = np.genfromtxt("cosmos.txt")
 
 #This contains our parameterization
-name = 'defg'
+name = 'dfgB'
 base_dir = "../../fit_mass_functions/output/%s/"%name
 base_save = base_dir+"%s_"%name
 best_fit_models = np.loadtxt(base_save+"bests.txt")
 
 def get_params(model, sf):
     Tinker_defaults = {'d':1.97, 'e':1.0, "f": 0.51, 'g':1.228}
+    B=None
+    if name is 'dfgB':
+        d0,d1,f0,f1,g0,g1,B = model
+        e0 = Tinker_defaults['e']
+        e1 = 0.0
     if name is 'defg':
         d0,d1,e0,e1,f0,f1,g0,g1 = model
     if name is 'dfg':
@@ -57,9 +62,9 @@ def get_params(model, sf):
     e = e0 + k*e1
     f = f0 + k*f1
     g = g0 + k*g1
-    return d,e,f,g
+    return d,e,f,g,B
 
-make_BFs = False
+make_BFs = True
 BF_path = "saved_files/%s_bf_curves.p"%name
 BFs = []
 if make_BFs:
@@ -77,8 +82,8 @@ if make_BFs:
 
             #Now get the B.
             TMF_model = TMF.tinker_mass_function(cosmo_dict, redshifts[j])
-            d,e,f,g = get_params(best_fit_models[i], scale_factors[j])
-            TMF_model.set_parameters(d,e,f,g)
+            d,e,f,g,B = get_params(best_fit_models[i], scale_factors[j])
+            TMF_model.set_parameters(d,e,f,g,B)
             N_bf = volume * TMF_model.n_in_bins(lM_bins)
             BFs_cos.append(N_bf)
         BFs.append(BFs_cos)

@@ -62,8 +62,8 @@ def bestfit(Bp1, Berr, lams, zs, R):
     return result
 
 if __name__ == "__main__":
-    zs = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/blinded_data/meanz.txt")
-    lams = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/blinded_data/meanl.txt")
+    zs = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanz.txt")
+    lams = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanl.txt")
 
     Bp1, Berr, R = get_data(zs)
     res = bestfit(Bp1, Berr, lams, zs, R)
