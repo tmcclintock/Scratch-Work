@@ -29,7 +29,7 @@ xlabel  = r"$\log_{10}M\ [{\rm M_\odot}/h]$"
 y0label = r"$N/[{\rm Gpc}^3\  \log_{10}{\rm M_\odot}/h]$"
 y1label = r"$\%\ {\rm Diff}$"
 
-base = "/home/tmcclintock/Desktop/Github_stuff/Mass-Function-Emulator/test_data/"
+base = "../../Mass-Function-Emulator/test_data/"
 datapath = base+"N_data/Box%03d_full/Box%03d_full_Z%d.txt"
 covpath  = base+"covariances/Box%03d_cov/Box%03d_cov_Z%d.txt"
 
@@ -50,7 +50,7 @@ building_cosmos = np.delete(building_cosmos, 4, 1) #Delete ln10As
 building_cosmos = np.delete(building_cosmos, -1, 0)#39 is broken
 
 #This contains our parameterization
-name = 'defg'
+name = 'dfgB'
 base_dir = "../../fit_mass_functions/output/%s/"%name
 base_save = base_dir+"%s_"%name
 mean_models = np.loadtxt(base_save+"means.txt")
@@ -58,6 +58,11 @@ err_models = np.sqrt(np.loadtxt(base_save+"vars.txt"))
 
 def get_params(model, sf):
     Tinker_defaults = {'d':1.97, 'e':1.0, "f": 0.51, 'g':1.228}
+    B=None
+    if name is 'dfgB':
+        d0,d1,f0,f1,g0,g1,B = model
+        e0 = Tinker_defaults['e']
+        e1 = 0.0
     if name is 'defg':
         d0,d1,e0,e1,f0,f1,g0,g1 = model
     if name is 'dfg':
@@ -79,7 +84,7 @@ def get_params(model, sf):
     e = e0 + k*e1
     f = f0 + k*f1
     g = g0 + k*g1
-    return d,e,f,g
+    return d,e,f,g,B
 
 fig, axarr = plt.subplots(2, sharex=True)
 
@@ -114,8 +119,8 @@ for i in range(0,1):
 
         #Get emulated curves
         TMF_model = TMF.tinker_mass_function(cosmo_dict, redshifts[j])
-        d,e,f,g = get_params(emu_model, scale_factors[j])
-        TMF_model.set_parameters(d,e,f,g)
+        d,e,f,g,B = get_params(emu_model, scale_factors[j])
+        TMF_model.set_parameters(d,e,f,g,B)
         N_bf = volume * TMF_model.n_in_bins(lM_bins)
         axarr[0].plot(lM, N_bf, ls='--', c=cmap(c[j]), alpha=1.0)
 

@@ -12,7 +12,7 @@ xlabel  = r"$\log_{10}M\ [{\rm M_\odot}/h]$"
 y0label = r"$N/[{\rm Gpc}^3\  \log_{10}{\rm M_\odot}/h]$"
 y1label = r"$\%\ {\rm Diff}$"
 
-base = "/home/tmcclintock/Desktop/Github_stuff/Mass-Function-Emulator/test_data/"
+base = "../../Mass-Function-Emulator/test_data/"
 datapath = base+"N_data/Box%03d_full/Box%03d_full_Z%d.txt"
 covpath  = base+"covariances/Box%03d_cov/Box%03d_cov_Z%d.txt"
 
