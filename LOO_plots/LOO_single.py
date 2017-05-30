@@ -5,7 +5,7 @@ This is Figure 4.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-plt.rc('text', usetex=True, fontsize=24)
+plt.rc('text', usetex=True, fontsize=20)
 import tinker_mass_function as TMF
 import sys, os, emulator
 
@@ -50,7 +50,7 @@ building_cosmos = np.delete(building_cosmos, 4, 1) #Delete ln10As
 building_cosmos = np.delete(building_cosmos, -1, 0)#39 is broken
 
 #This contains our parameterization
-name = 'dfgB'
+name = 'dfg'
 base_dir = "../../fit_mass_functions/output/%s/"%name
 base_save = base_dir+"%s_"%name
 mean_models = np.loadtxt(base_save+"means.txt")
@@ -137,7 +137,7 @@ axarr[1].set_ylabel(y1label)
 axarr[0].set_yscale('log')
 axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
 axarr[1].set_ylim(-18, 18)
-leg = axarr[0].legend(loc=0, fontsize=10, numpoints=1, frameon=False)
+leg = axarr[0].legend(loc=0, fontsize=8, numpoints=1, frameon=False)
 leg.get_frame().set_alpha(0.5)
 plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
 fig.savefig("fig_emubad.pdf")

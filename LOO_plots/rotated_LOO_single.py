@@ -3,7 +3,7 @@ Here I create the 'best fit' example, for one cosmology.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-plt.rc('text', usetex=True, fontsize=24)
+plt.rc('text', usetex=True, fontsize=20)
 import tinker_mass_function as TMF
 import sys, os, emulator
 
@@ -49,7 +49,7 @@ building_cosmos = np.delete(building_cosmos, 4, 1) #Delete ln10As
 building_cosmos = np.delete(building_cosmos, -1, 0)#39 is broken
 
 #This contains our parameterization
-name = 'defg'
+name = 'dfg'
 base_dir = "../../fit_mass_functions/output/%s_rotated/"%name
 base_save = base_dir+"rotated_%s_"%name
 mean_models = np.loadtxt(base_save+"means.txt")
@@ -60,6 +60,11 @@ R = np.genfromtxt(base_dir+"R_matrix.txt")
 
 def get_params(model, sf):
     Tinker_defaults = {'d':1.97, 'e':1.0, "f": 0.51, 'g':1.228}
+    B=None
+    if name is 'dfgB':
+        d0,d1,f0,f1,g0,g1,B = model
+        e0 = Tinker_defaults['e']
+        e1 = 0.0
     if name is 'defg':
         d0,d1,e0,e1,f0,f1,g0,g1 = model
     if name is 'dfg':
@@ -81,7 +86,7 @@ def get_params(model, sf):
     e = e0 + k*e1
     f = f0 + k*f1
     g = g0 + k*g1
-    return d,e,f,g
+    return d,e,f,g,B
 
 fig, axarr = plt.subplots(2, sharex=True)
 
@@ -116,8 +121,8 @@ for i in range(0,1):
 
         #Get emulated curves
         TMF_model = TMF.tinker_mass_function(cosmo_dict, redshifts[j])
-        d,e,f,g = get_params(emu_model, scale_factors[j])
-        TMF_model.set_parameters(d,e,f,g)
+        d,e,f,g,B = get_params(emu_model, scale_factors[j])
+        TMF_model.set_parameters(d,e,f,g,B)
         N_bf = volume * TMF_model.n_in_bins(lM_bins)
         axarr[0].plot(lM, N_bf, ls='--', c=cmap(c[j]), alpha=1.0)
 
@@ -134,7 +139,7 @@ axarr[1].set_ylabel(y1label)
 axarr[0].set_yscale('log')
 axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
 axarr[1].set_ylim(-18, 18)
-leg = axarr[0].legend(loc=0, fontsize=10, numpoints=1, frameon=False)
+leg = axarr[0].legend(loc=0, fontsize=8, numpoints=1, frameon=False)
 leg.get_frame().set_alpha(0.5)
 plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
 fig.savefig("fig_emurot.pdf")
