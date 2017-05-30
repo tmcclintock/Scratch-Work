@@ -4,7 +4,13 @@ Fit the Y1 boost factors given by tamas.
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as op
-plt.rc("text", usetex=True, fontsize=20)
+import emcee
+from chainconsumer import ChainConsumer
+plt.rc("text", usetex=True, fontsize=12)
+
+ndim = 4
+nwalkers = 16
+nsteps = 5000
 
 #Boost model
 def model(params, l, z, R):
@@ -61,27 +67,53 @@ def bestfit(Bp1, Berr, lams, zs, R):
                          method='Nelder-Mead')
     return result
 
-if __name__ == "__main__":
-    zs = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanz.txt")
-    lams = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanl.txt")
+def do_mcmc(bf, Bp1, Berr, lams, zs, R):
+    pos = [bf + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(lams ,zs, R, Bp1, Berr))
+    print "Starting MCMC"
+    sampler.run_mcmc(pos, nsteps)
+    chain = sampler.flatchain
+    print chain.shape
+    np.savetxt("chain.txt", chain)
+    print "Chain saved"
+    return
 
-    Bp1, Berr, R = get_data(zs)
-    res = bestfit(Bp1, Berr, lams, zs, R)
-    print res
-    params = res['x']
-    print params
+def plot_BF(bf, zs, lams):
     c = np.linspace(1.0, 0.3, len(zs[0]))
     cmaps = ["Blues", "Greens", "Reds"]
-    f, axarr = plt.subplots(len(zs), sharex=True)
+    f, axarr = plt.subplots(len(zs), sharex=True, sharey=True)
     for i in range(len(zs)):
         for j in range(len(zs[i])):
-            Bmodel = model(params, lams[i,j], zs[i,j], R[i][j])
+            Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j])
             col = plt.get_cmap(cmaps[i])(c[j])
+            #axarr[i].errorbar(R[i][j], np.log(Bp1[i][j]), Berr[i][j]/Bp1[i][j], c=col, ls='', marker='o')
+            #axarr[i].plot(R[i][j], np.log(Bmodel), c=col, label="l%d"%j)
             axarr[i].errorbar(R[i][j], Bp1[i][j], Berr[i][j], c=col, ls='', marker='o')
             axarr[i].plot(R[i][j], Bmodel, c=col, label="l%d"%j)
             axarr[i].set_ylabel(r"$B(z=%.2f)$"%zs[i,0], fontsize=14)
     plt.subplots_adjust(hspace=0.05, left=0.15, bottom=0.15)
     plt.xlabel(r"$R\ [{\rm Mpc}]$")
     plt.xscale('log')
-    #plt.legend(loc=0)
     plt.show()
+    return
+
+def see_chain():
+    fullchain = np.loadtxt("chain.txt")
+    nburn = 1000
+    chain = fullchain[nwalkers*nburn:]
+    labels = [r"$B_0$", r"$C_\lambda$", r"$D_z$", r"$E_R$"]
+    cc = ChainConsumer().add_chain(chain, parameters=labels, name="boost")
+    cc.plot()
+    plt.subplots_adjust(bottom=0.2, top=0.9, left=0.25, right = 0.85)
+    plt.show()
+
+if __name__ == "__main__":
+    zs = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanz.txt")
+    lams = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanl.txt")
+
+    Bp1, Berr, R = get_data(zs)
+    #res = bestfit(Bp1, Berr, lams, zs, R)
+    #plot_BF(res['x'], zs, lams)
+    #do_mcmc(res['x'], Bp1, Berr, lams, zs, R)
+
+    see_chain()
