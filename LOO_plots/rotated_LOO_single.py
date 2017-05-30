@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 plt.rc('text', usetex=True, fontsize=20)
 import tinker_mass_function as TMF
 import sys, os, emulator
+import cosmocalc as cc
 
 def train(training_cosmos, training_data, training_errs):
     N_cosmos = len(training_cosmos)
@@ -27,6 +28,7 @@ def predict_parameters(cosmology, emu_list):
 xlabel  = r"$\log_{10}M\ [{\rm M_\odot}/h]$"
 y0label = r"$N/[{\rm Gpc}^3\  \log_{10}{\rm M_\odot}/h]$"
 y1label = r"$\%\ {\rm Diff}$"
+y2label = r"$\frac{N-N_{emu}}{N_{emu}bG}$"
 
 base = "/home/tmcclintock/Desktop/Github_stuff/Mass-Function-Emulator/test_data/"
 datapath = base+"N_data/Box%03d_full/Box%03d_full_Z%d.txt"
@@ -88,6 +90,9 @@ def get_params(model, sf):
     g = g0 + k*g1
     return d,e,f,g,B
 
+def get_bG(cosmo_dict, a, Masses):
+    return cc.growth_function(a)*np.array([cc.tinker2010_bias(Mi, a, 200) for Mi in Masses])
+
 fig, axarr = plt.subplots(2, sharex=True)
 
 for i in range(0,1):
@@ -127,18 +132,23 @@ for i in range(0,1):
         axarr[0].plot(lM, N_bf, ls='--', c=cmap(c[j]), alpha=1.0)
 
         #Plot the %difference
-        pd  = 100.*(N-N_bf)/N_bf
+        bG = get_bG(cosmo_dict, scale_factors[j], 10**lM)
+        dN_N = (N-N_bf)/N_bf
+        dN_NbG = dN_N/bG
+        edN_NbG = err/N_bf/bG
+        pd  = 100.*dN_N
         pde = 100.*err/N_bf
-        axarr[1].errorbar(lM, pd, pde, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
+        #axarr[1].errorbar(lM, pd, pde, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
+        axarr[1].errorbar(lM, dN_NbG, edN_NbG, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
     axarr[1].axhline(0, c='k', ls='-', zorder=-1)
 
 #Show
 axarr[1].set_xlabel(xlabel)
 axarr[0].set_ylabel(y0label)
-axarr[1].set_ylabel(y1label)
+axarr[1].set_ylabel(y2label)
 axarr[0].set_yscale('log')
 axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
-axarr[1].set_ylim(-18, 18)
+#axarr[1].set_ylim(-18, 18)
 leg = axarr[0].legend(loc=0, fontsize=8, numpoints=1, frameon=False)
 leg.get_frame().set_alpha(0.5)
 plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
