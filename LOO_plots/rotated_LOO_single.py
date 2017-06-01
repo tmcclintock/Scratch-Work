@@ -93,9 +93,8 @@ def get_params(model, sf):
 def get_bG(cosmo_dict, a, Masses):
     return cc.growth_function(a)*np.array([cc.tinker2010_bias(Mi, a, 200) for Mi in Masses])
 
-fig, axarr = plt.subplots(2, sharex=True)
-
 for i in range(0,1):
+    fig, axarr = plt.subplots(2, sharex=True)
     #Get in the cosmology and create a cosmo_dict
     num,ombh2,omch2,w0,ns,ln10As,H0,Neff,sigma8 = cosmos[i]
     h = H0/100.
@@ -142,15 +141,15 @@ for i in range(0,1):
         axarr[1].errorbar(lM, dN_NbG, edN_NbG, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
     axarr[1].axhline(0, c='k', ls='-', zorder=-1)
 
-#Show
-axarr[1].set_xlabel(xlabel)
-axarr[0].set_ylabel(y0label)
-axarr[1].set_ylabel(y2label)
-axarr[0].set_yscale('log')
-axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
-#axarr[1].set_ylim(-18, 18)
-leg = axarr[0].legend(loc=0, fontsize=8, numpoints=1, frameon=False)
-leg.get_frame().set_alpha(0.5)
-plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
-fig.savefig("fig_emurot.pdf")
-plt.show()
+    #Show
+    axarr[1].set_xlabel(xlabel)
+    axarr[0].set_ylabel(y0label)
+    axarr[1].set_ylabel(y2label)
+    axarr[0].set_yscale('log')
+    axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
+    #axarr[1].set_ylim(-18, 18)
+    leg = axarr[0].legend(loc=0, fontsize=8, numpoints=1, frameon=False)
+    leg.get_frame().set_alpha(0.5)
+    plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
+    #fig.savefig("fig_emurot.pdf")
+    plt.show()
