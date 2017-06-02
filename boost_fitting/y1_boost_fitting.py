@@ -38,7 +38,7 @@ def lnprob(params, lams, zs, R, Bp1, Berr):
     return lnp + lnlike(params, lams, zs, R, Bp1, Berr)
 
 def get_data(zs):
-    datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
+    datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
     #Read in all data
     Bp1  = []
     Berr = []
@@ -88,12 +88,14 @@ def plot_BF(bf, zs, lams):
             col = plt.get_cmap(cmaps[i])(c[j])
             #axarr[i].errorbar(R[i][j], np.log(Bp1[i][j]), Berr[i][j]/Bp1[i][j], c=col, ls='', marker='o')
             #axarr[i].plot(R[i][j], np.log(Bmodel), c=col, label="l%d"%j)
-            axarr[i].errorbar(R[i][j], Bp1[i][j], Berr[i][j], c=col, ls='', marker='o')
-            axarr[i].plot(R[i][j], Bmodel, c=col, label="l%d"%j)
-            axarr[i].set_ylabel(r"$B(z=%.2f)$"%zs[i,0], fontsize=14)
+            axarr[i].errorbar(R[i][j], Bp1[i][j]-1, Berr[i][j], c=col, ls='', marker='o')
+            axarr[i].plot(R[i][j], Bmodel-1, c=col, label="l%d"%j)
+            axarr[i].set_ylabel(r"$B(%.2f)-1$"%zs[i,0], fontsize=14)
+        axarr[i].set_ylim(1e-3, 1.2)
     plt.subplots_adjust(hspace=0.05, left=0.15, bottom=0.15)
     plt.xlabel(r"$R\ [{\rm Mpc}]$")
     plt.xscale('log')
+    plt.yscale('log')
     plt.show()
     return
 
@@ -112,8 +114,8 @@ if __name__ == "__main__":
     lams = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanl.txt")
 
     Bp1, Berr, R = get_data(zs)
-    #res = bestfit(Bp1, Berr, lams, zs, R)
-    #plot_BF(res['x'], zs, lams)
+    res = bestfit(Bp1, Berr, lams, zs, R)
+    plot_BF(res['x'], zs, lams)
     #do_mcmc(res['x'], Bp1, Berr, lams, zs, R)
 
-    see_chain()
+    #see_chain()
