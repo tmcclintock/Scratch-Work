@@ -115,7 +115,7 @@ for i in range(0,1):
     emu_list = train(training_cosmos, training_data, training_errs)
     emu_model = predict_parameters(test_cosmo, emu_list)
 
-    for j in range(1,N_z):
+    for j in range(0,N_z):
         #First plot the data.
         data = np.loadtxt(datapath%(i, i, j))
         lM_bins = data[:,:2]
@@ -140,7 +140,8 @@ for i in range(0,1):
         pd  = 100.*dN_N
         pde = 100.*err/N_bf
         #axarr[1].errorbar(lM, pd, pde, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
-        axarr[1].errorbar(lM, dN_NbG, edN_NbG, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
+        if j > 0:
+            axarr[1].errorbar(lM, dN_NbG, edN_NbG, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
     axarr[1].axhline(0, c='k', ls='-', zorder=-1)
 
     #Show
