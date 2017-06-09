@@ -27,6 +27,8 @@ def predict_parameters(cosmology, emu_list):
 
 xlabel  = r"$\log_{10}M\ [{\rm M_\odot}/h]$"
 y0label = r"$N/[{\rm Gpc}^3\  \log_{10}{\rm M_\odot}/h]$"
+y0label = r"$N/[{\rm Gpc}^3\  \log{\rm M_\odot}]$"
+#y0label = r"${\rm Mass\ Function}$"
 y1label = r"$\%\ {\rm Diff}$"
 y2label = r"$\frac{N-N_{emu}}{N_{emu}bG}$"
 
@@ -113,7 +115,7 @@ for i in range(0,1):
     emu_list = train(training_cosmos, training_data, training_errs)
     emu_model = predict_parameters(test_cosmo, emu_list)
 
-    for j in range(N_z):
+    for j in range(1,N_z):
         #First plot the data.
         data = np.loadtxt(datapath%(i, i, j))
         lM_bins = data[:,:2]
@@ -148,8 +150,9 @@ for i in range(0,1):
     axarr[0].set_yscale('log')
     axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
     #axarr[1].set_ylim(-18, 18)
+    axarr[1].set_ylim(-0.05, 0.12)
     leg = axarr[0].legend(loc=0, fontsize=8, numpoints=1, frameon=False)
     leg.get_frame().set_alpha(0.5)
     plt.subplots_adjust(bottom=0.15, left=0.15, hspace=0.0)
-    #fig.savefig("fig_emurot.pdf")
+    fig.savefig("fig_emurot.png")
     plt.show()
