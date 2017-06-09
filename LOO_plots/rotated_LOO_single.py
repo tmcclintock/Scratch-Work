@@ -162,7 +162,9 @@ for i in range(0,1):
         eduardo = (N-N_bf*(1+bG*delta0))/N_bf
         newerr = err/N_bf
         #axarr[1].errorbar(lM, dN_NbG, edN_NbG, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
-        axarr[1].errorbar(lM, eduardo, newerr, marker='.', ls='', c=cmap(c[j]), alpha=1.0)
+        for k in range(len(lM)):
+            if newerr[k] < 0.05:
+                axarr[1].errorbar(lM[k], 100*eduardo[k], 100*newerr[k], marker='.', ls='', c=cmap(c[j]), alpha=1.0)
     axarr[1].axhline(0, c='k', ls='-', zorder=-1)
 
     #Show
@@ -171,8 +173,9 @@ for i in range(0,1):
     axarr[1].set_ylabel(y1label)
     axarr[0].set_yscale('log')
     axarr[0].set_ylim(1, axarr[0].get_ylim()[1])
-    axarr[1].set_ylim(-0.26, 0.26)
+    axarr[1].set_ylim(-6, 6)
     #axarr[1].set_ylim(-0.05, 0.12)
+    axarr[1].set_xlim(12.9, 15)
     leg = axarr[0].legend(loc=0, fontsize=6, numpoints=1, frameon=False)
     leg.get_frame().set_alpha(0.5)
     plt.subplots_adjust(bottom=0.15, left=0.19, hspace=0.0)
