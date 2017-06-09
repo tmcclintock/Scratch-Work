@@ -30,8 +30,8 @@ y0label = r"$N/[{\rm Gpc}^3\  \log_{10}{\rm M_\odot}/h]$"
 y0label = r"$N/[{\rm Gpc}^3\  \log{\rm M}]$"
 #y0label = r"${\rm Mass\ Function}$"
 y1label = r"$\%\ {\rm Diff}$"
-y1label = r"$\frac{N-N_{emu}}{N_{emu}bG}$"
-y1label = r"$\frac{N-N_{emu}(1+bG\delta_0)}{N_{emu}}$"
+#y1label = r"$\frac{N-N_{emu}}{N_{emu}bG}$"
+#y1label = r"$\frac{N-N_{emu}(1+bG\delta_0)}{N_{emu}}$"
 
 base = "/home/tmcclintock/Desktop/Github_stuff/Mass-Function-Emulator/test_data/"
 datapath = base+"N_data/Box%03d_full/Box%03d_full_Z%d.txt"
@@ -122,7 +122,7 @@ for i in range(0,1):
     N_bfs = []
     bGs = []
     delta0s = []
-    for j in range(0,N_z):
+    for j in range(1,N_z):
         #First get the data.
         data = np.loadtxt(datapath%(i, i, j))
         lM_bins = data[:,:2]
@@ -146,13 +146,13 @@ for i in range(0,1):
     delta0s = np.concatenate(delta0s)
     delta0 = np.median(delta0s)
     print "box %d"%i, "delta0 = %f"%delta0
-    for j in range(0,N_z):
+    for j in range(0,N_z-1):
         lM = lMs[j]
         N = N_datas[j]
         err = errs[j]
         N_bf = N_bfs[j]
         bG = bGs[j]
-        axarr[0].errorbar(lM, N, err, marker='.', ls='', c=cmap(c[j]), alpha=1.0, label=r"$z=%.1f$"%redshifts[j])
+        axarr[0].errorbar(lM, N, err, marker='.', ls='', c=cmap(c[j]), alpha=1.0, label=r"$z=%.1f$"%redshifts[j+1])
         axarr[0].plot(lM, N_bf, ls='--', c=cmap(c[j]), alpha=1.0)
         dN_N = (N-N_bf)/N_bf
         dN_NbG = dN_N/bG
@@ -176,5 +176,6 @@ for i in range(0,1):
     leg = axarr[0].legend(loc=0, fontsize=6, numpoints=1, frameon=False)
     leg.get_frame().set_alpha(0.5)
     plt.subplots_adjust(bottom=0.15, left=0.19, hspace=0.0)
-    #fig.savefig("fig_emurot.pdf")
-    plt.show()
+    fig.savefig("fig_emurot.pdf")
+    fig.savefig("fig_emurot.png")
+    #plt.show()
