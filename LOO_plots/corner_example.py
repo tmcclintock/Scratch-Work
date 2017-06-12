@@ -8,14 +8,18 @@ import matplotlib.pyplot as plt
 plt.rc('text', usetex=True, fontsize=24)
 import corner
 from chainconsumer import ChainConsumer
+import sys
 
-#name = 'defg_rotated'
-name = 'dfgB'
+name = 'dfgB_rotated'
+#name = 'dfgB'
 rotated = name.find("rotated") != -1
 corner_labels = []
 for i,l in zip(range(len(name)), name.split("_")[0]):
     if l == "B":
-        corner_labels.append(r"$%s$"%l)
+        if rotated:
+            corner_labels.append(r"$%s'$"%l)
+        else:
+            corner_labels.append(r"$%s$"%l)
         continue
     if rotated:
         corner_labels.append(r"$%s_0'$"%l)
@@ -39,7 +43,8 @@ for i in range(1): #N_cosmos):
     if not rotated:
         fullchain = np.loadtxt(base_dir+"chains/Box%03d_chain.txt"%(i))
     else:
-        fullchain = np.loadtxt(base_dir+"rotated_chains/Rotated_Box%03d_chain.txt"%(i))
+        fullchain = np.loadtxt(base_dir+"rotated_chains/rotated_Box%03d_chain.txt"%(i))
+
     chain = fullchain[nwalkers*nburn:]
 
     #Now with chainconsumer
