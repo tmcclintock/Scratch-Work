@@ -1,3 +1,5 @@
+assembly_work/*.o
+
 boost_fitting/chain.txt
 
 lss_cov/*.txt
