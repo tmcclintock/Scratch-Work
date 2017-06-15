@@ -1,13 +1,15 @@
 #include <cmath>
 #include <iostream>
 #include <ctime>
+#include <smmintrin.h>
+
 #include "/home/tom/code/fmath/fmath.hpp"
 
 int main(){
   clock_t begin = clock();
   float x = 3.0;
   int i;
-  int N = 100000000;
+  int N = 10000000;
   std::scientific;
   for(i=N; i > 0; i--)
     std::exp((float)i*x);
