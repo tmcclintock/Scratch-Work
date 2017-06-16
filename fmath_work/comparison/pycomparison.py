@@ -45,7 +45,7 @@ fd = np.array(fd)
 cd = np.array(cd)
 
 plt.loglog(x, np.fabs(f-c)/c, label="float")
-plt.loglog(x, np.fabs(fd-cd)/cd, label="double")
+#plt.loglog(x, np.fabs(fd-cd)/cd, label="double")
 #plt.xscale('log')
 plt.xlabel(r"$x$")
 plt.ylabel(r"$\%\ {\rm Diff}$")
