@@ -1,6 +1,7 @@
 lol:
-	g++ -fPIC -shared comp.cpp -L. -o comp.so
-	gcc thec.c -L. -lcomp -lstdc++ -o exec
+	gcc -c thec.c
+	g++ -fPIC -shared comp.cpp -o comp.so
+	gcc -o exec thec.o comp.so
 
 clean:
-	rm -f *.so exec
+	rm -f *.so exec *.o

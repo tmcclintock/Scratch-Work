@@ -1,3 +1,5 @@
+*.o
+
 assembly_work/*.o
 
 boost_fitting/chain.txt
