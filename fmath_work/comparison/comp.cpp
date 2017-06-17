@@ -1,6 +1,7 @@
 #include <cmath>
 #include "/home/tom/code/fmath/fmath.hpp"
 #include "comp.h"
+#include <iostream>
 
 extern "C" float fexpf(float x){
   return fmath::exp(x);
@@ -18,3 +19,7 @@ extern "C" double cexpd(double x){
   return std::exp(x);
 }
 
+extern "C" double*fexpd_v(double*x, int n){
+  fmath::expd_v(x, (size_t)n);
+  return x;
+}
