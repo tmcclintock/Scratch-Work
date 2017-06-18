@@ -1,17 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "comp.h"
 
 int main(){
-  printf("test %f %f\n",fexpf(3), cexpf(3));
 
-  double*x = (double*)malloc(3*sizeof(double));
-  x[0] = 0.0;
-  x[1] = 1.0;
-  x[2] = 2.0;
-  printf("%f %f %f\n",x[0], x[1], x[2]);
-  x = fexpd_v(x, 3);
-  printf("%f %f %f\n",x[0], x[1], x[2]);
+  clock_t begin;
+  clock_t end;
+  double time;
+  int i,n = 100000;
+  double*x = (double*)malloc(n*sizeof(double));
+  for(i=0; i < n; i++)
+    x[i] = (double)i/n;
+
+  begin = clock();
+  fexpd_v(x, n);
+  end = clock();
+  time = (double)(end-begin)/CLOCKS_PER_SEC;
+  printf("expd_v time is %e\n",time);
+
+  //reset x
+  for(i=0; i < n; i++)
+    x[i] = (double)i/n;
+
+  begin = clock();
+  for(i=0; i < n; i++)
+    x[i] = fexpd(x[i]);
+  end = clock();
+  time = (double)(end-begin)/CLOCKS_PER_SEC;
+  printf("fmath::expd time is %e\n",time);
+
+
+  //reset x
+  for(i=0; i < n; i++)
+    x[i] = (double)i/n;
+
+  begin = clock();
+  for(i=0; i < n; i++)
+    x[i] = cexpd(x[i]);
+  end = clock();
+  time = (double)(end-begin)/CLOCKS_PER_SEC;
+  printf("std::expd time is %e\n",time);
+
+
   free(x);
   return 0;
 
