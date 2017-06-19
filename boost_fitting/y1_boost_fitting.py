@@ -8,28 +8,42 @@ import emcee
 from chainconsumer import ChainConsumer
 plt.rc("text", usetex=True, fontsize=12)
 
-ndim = 4
 nwalkers = 16
 nsteps = 5000
 
 #Boost model
 def model(params, l, z, R):
-    b0,c,d,e = params
+    if len(params)==4:
+        b0,c,d,e = params
+    elif len(params)==5:
+        b0,c,d,e,sigma = params
     return 1.0 - b0*(l/30.0)**c*((1.+z)/1.5)**d*(R/0.5)**e
+
+def scatter_model(sigma, R):
+    return (sigma/R)**2 #R is in Mpc, pivot is 1 Mpc
 
 #Define the likelihoods
 def lnprior(params):
-    b0,c,d,e = params
+    if len(params)==4:
+        b0,c,d,e = params
+    elif len(params)==5:
+        b0,c,d,e,sigma = params
     #if any(np.fabs(params)>20.0): return -np.inf
     return 0.0
 
 def lnlike(params, lams, zs, R, Bp1, Berr):
-    b0,c,d,e = params
+    if len(params)==4:
+        b0,c,d,e = params
+        sigma=0
+    elif len(params)==5:
+        b0,c,d,e,sigma = params
     LL = 0
     for i in range(len(Bp1)): #Loop over all boost files
         for j in xrange(0,len(Bp1[i])):
             Bmodel = model(params, lams[i,j], zs[i,j], R[i][j])
-            LL += np.sum(-0.5*(Bp1[i][j]-Bmodel)**2/Berr[i][j]**2)
+            scatter = scatter_model(sigma, R[i][j])
+            LL += np.sum(-0.5*(Bp1[i][j]-Bmodel)**2/(Berr[i][j]**2+scatter))
+            LL += np.sum(-0.5*np.log(Berr[i][j]**2+scatter))
     return LL
 
 def lnprob(params, lams, zs, R, Bp1, Berr):
@@ -61,13 +75,15 @@ def get_data(zs):
     return Bp1, Berr, R
 
 def bestfit(Bp1, Berr, lams, zs, R):
-    guess = [-1.0, 1.0, 1.0, -1.0]
+    #Parameters: B0, C, D, E, sigma(R=1 MPC)
+    guess = [-1.0, 1.0, 1.0, -1.0, -1.0]
     nll = lambda *args: -lnprob(*args)
     result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr), 
                          method='Nelder-Mead')
     return result
 
 def do_mcmc(bf, Bp1, Berr, lams, zs, R):
+    ndim = len(bf)
     pos = [bf + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(lams ,zs, R, Bp1, Berr))
     print "Starting MCMC"
@@ -103,7 +119,10 @@ def see_chain():
     fullchain = np.loadtxt("chain.txt")
     nburn = 1000
     chain = fullchain[nwalkers*nburn:]
-    labels = [r"$B_0$", r"$C_\lambda$", r"$D_z$", r"$E_R$"]
+    if len(fullchain[0])==4:
+        labels = [r"$B_0$", r"$C_\lambda$", r"$D_z$", r"$E_R$"]
+    elif len(fullchain[0])==5:
+        labels = [r"$B_0$", r"$C_\lambda$", r"$D_z$", r"$E_R$",r"$\sigma_{1\ {\rm Mpc}}$"]
     cc = ChainConsumer().add_chain(chain, parameters=labels, name="boost")
     cc.plot()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.25, right = 0.85)
@@ -116,6 +135,6 @@ if __name__ == "__main__":
     Bp1, Berr, R = get_data(zs)
     res = bestfit(Bp1, Berr, lams, zs, R)
     plot_BF(res['x'], zs, lams)
-    #do_mcmc(res['x'], Bp1, Berr, lams, zs, R)
+    do_mcmc(res['x'], Bp1, Berr, lams, zs, R)
 
-    #see_chain()
+    see_chain()
