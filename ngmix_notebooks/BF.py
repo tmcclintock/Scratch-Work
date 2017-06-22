@@ -45,7 +45,9 @@ guess[3] += urand(low=-eps, high=eps)
 guess[4] *= (1.0 + urand(low=-eps, high=eps))
 guess[5] *= (1.0 + urand(low=-eps, high=eps))
 # Kick off the fitter and get out the mixture of the fit
+print "pfitter.go start"
 pfitter.go(guess)
+print "pfitter.go end"
 psf_gmix_fit = pfitter.get_gmix()
 # Set the mixture to the observation. This is needed for galaxy fitting later.
 psf_obs.set_gmix(psf_gmix_fit)
@@ -61,7 +63,9 @@ guess[3] += urand(low=-eps, high=eps)
 guess[4] *= (1.0 + urand(low=-eps, high=eps))
 guess[5] *= (1.0 + urand(low=-eps, high=eps))
 # kick off the fitter and get out the result of the fit
+print "fitter.go start"
 fitter.go(guess)
+print "fitter.go end"
 result = fitter.get_result()
 
 obs_list = ObsList()
