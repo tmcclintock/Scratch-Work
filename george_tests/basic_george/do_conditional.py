@@ -6,8 +6,9 @@ np.random.seed(0)
 Nx = 40
 x = 10*np.sort(np.random.rand(Nx))
 yerr = 0.2 * np.ones_like(x)
-y = np.cos(x) + 1 + yerr * np.random.randn(len(x))
+y = np.cos(x)  + yerr * np.random.randn(len(x))
 
+#kernel = george.kernels.CosineKernel(2*np.pi)
 kernel = george.kernels.ExpSquaredKernel(2*np.pi)
 gp = george.GP(kernel)
 gp.optimize(x, y, yerr)
