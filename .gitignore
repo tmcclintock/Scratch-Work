@@ -1,3 +1,5 @@
+pymultinest_test/chains
+
 *.o
 
 assembly_work/*.o
