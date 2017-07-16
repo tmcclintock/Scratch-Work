@@ -8,10 +8,11 @@ N = 200
 x = np.vstack((10*np.random.rand(N),10*np.random.rand(N)))
 yerr = 0.2 * np.ones(N)
 y = np.sin(x[0]) + np.cos(x[1]) + yerr*np.random.randn(N)
-kernel = george.kernels.CosineKernel(2*np.pi, ndim=2, dim=0)
-#kernel = george.kernels.ExpSquaredKernel(1.0, ndim=2)
+#kernel = george.kernels.CosineKernel(2*np.pi, ndim=2, dim=0)
+kernel = george.kernels.ExpSquaredKernel(1.0, ndim=2)
 gp = george.GP(kernel)
 gp.compute(x.T, yerr)
+print gp.kernel
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
