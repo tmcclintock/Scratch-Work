@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import scipy.optimize as op
 import emcee
 from chainconsumer import ChainConsumer
-plt.rc("text", usetex=True, fontsize=12)
+plt.rc("text", usetex=True)
+plt.rc("font", size=14)
 
 nwalkers = 16
 nsteps = 5000
@@ -53,6 +54,14 @@ def lnprob(params, lams, zs, R, Bp1, Berr):
 
 def get_data(zs):
     datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
+    use_blue = True
+    if use_blue:
+        datapath = "/home/tmcclintock/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
+        covpath  = "/home/tmcclintock/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
+    else:
+        datapath = "/home/tmcclintock/Desktop/boost_files/redcurves/red_z%d_l%d.txt"
+        covpath  = "/home/tmcclintock/Desktop/boost_files/redcurves/cov_z%d_l%d.txt"
+
     #Read in all data
     Bp1  = []
     Berr = []
@@ -62,7 +71,7 @@ def get_data(zs):
         Berri = []
         Ri    = []
         for j in xrange(0,len(zs[i])):
-            Rij, Bp1ij, Berrij = np.loadtxt(datapath%(j, i), unpack=True)
+            Rij, Bp1ij, Berrij = np.loadtxt(datapath%(i, j), unpack=True)
             Bp1ij  = Bp1ij[Berrij > 1e-3]
             Rij    = Rij[Berrij > 1e-3]
             Berrij = Berrij[Berrij > 1e-3]
@@ -95,23 +104,25 @@ def do_mcmc(bf, Bp1, Berr, lams, zs, R):
     return
 
 def plot_BF(bf, zs, lams):
-    c = np.linspace(1.0, 0.3, len(zs[0]))
-    cmaps = ["Blues", "Greens", "Reds"]
-    f, axarr = plt.subplots(len(zs), sharex=True, sharey=True)
-    for i in range(len(zs)):
-        for j in range(len(zs[i])):
+    Nz = len(zs)
+    Nl = len(zs[0])
+    fig, axarr = plt.subplots(Nz, Nl, sharex=True, sharey = True)
+    for i in range(Nz):
+        for j in range(Nl):
             Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j])
-            col = plt.get_cmap(cmaps[i])(c[j])
-            #axarr[i].errorbar(R[i][j], np.log(Bp1[i][j]), Berr[i][j]/Bp1[i][j], c=col, ls='', marker='o')
-            #axarr[i].plot(R[i][j], np.log(Bmodel), c=col, label="l%d"%j)
-            axarr[i].errorbar(R[i][j], Bp1[i][j]-1, Berr[i][j], c=col, ls='', marker='o')
-            axarr[i].plot(R[i][j], Bmodel-1, c=col, label="l%d"%j)
-            axarr[i].set_ylabel(r"$B(%.2f)-1$"%zs[i,0], fontsize=14)
-        axarr[i].set_ylim(1e-3, 1.2)
-    plt.subplots_adjust(hspace=0.05, left=0.15, bottom=0.15)
-    plt.xlabel(r"$R\ [{\rm Mpc}]$")
-    plt.xscale('log')
-    plt.yscale('log')
+            axarr[i,j].fill_between(R[i][j], Bp1[i][j]-Berr[i][j], Bp1[i][j]+Berr[i][j], color='b')
+            axarr[i,j].plot(R[i][j], Bmodel, c='k')
+
+            axarr[i,j].set_xscale('log')
+            axarr[i,j].set_xticks([0.1,1.0,10])
+            axarr[i,j].set_yticks([1.0, 1.2, 1.4, 1.6, 1.8])
+            axarr[i,j].set_xlim(0.03, 40)
+            axarr[i,j].set_ylim(0.8, 1.8)
+            axarr[i,j].grid(ls=':')
+    axarr[1,0].set_ylabel("Boost Factor")#r"$R\ [{\rm Mpc}]$")
+    axarr[2,3].set_xlabel(r"$R\ [{\rm Mpc}]$")
+    fig.set_size_inches(10, 5)
+    plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.15, bottom=0.15)
     plt.show()
     return
 
@@ -135,6 +146,5 @@ if __name__ == "__main__":
     Bp1, Berr, R = get_data(zs)
     res = bestfit(Bp1, Berr, lams, zs, R)
     plot_BF(res['x'], zs, lams)
-    do_mcmc(res['x'], Bp1, Berr, lams, zs, R)
-
-    see_chain()
+    #do_mcmc(res['x'], Bp1, Berr, lams, zs, R)
+    #see_chain()
