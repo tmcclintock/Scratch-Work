@@ -43,8 +43,15 @@ def lnlike(params, lams, zs, R, Bp1, Berr):
         for j in xrange(0,len(Bp1[i])):
             Bmodel = model(params, lams[i,j], zs[i,j], R[i][j])
             scatter = scatter_model(sigma, R[i][j])
-            LL += np.sum(-0.5*(Bp1[i][j]-Bmodel)**2/(Berr[i][j]**2+scatter))
-            LL += np.sum(-0.5*np.log(Berr[i][j]**2+scatter))
+            inds = R[i][j] > 0.2 #Mpc; small-scale cutoff
+            CHI2 = (Bp1[i][j]-Bmodel)**2/(Berr[i][j]**2+scatter)
+            CHI2 = CHI2[inds]
+            OTHER_TERM = np.log(Berr[i][j]**2+scatter)
+            OTHER_TERM = OTHER_TERM[inds]
+            LL += -0.5*CHI2.sum()
+            LL += -0.5*OTHER_TERM.sum()
+            #LL += np.sum(-0.5*(Bp1[i][j]-Bmodel)**2/(Berr[i][j]**2+scatter))
+            #LL += np.sum(-0.5*np.log(Berr[i][j]**2+scatter))
     return LL
 
 def lnprob(params, lams, zs, R, Bp1, Berr):
@@ -52,9 +59,9 @@ def lnprob(params, lams, zs, R, Bp1, Berr):
     if not np.isfinite(lnp): return -np.inf
     return lnp + lnlike(params, lams, zs, R, Bp1, Berr)
 
+use_blue = True
 def get_data(zs):
     datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
-    use_blue = True
     if use_blue:
         datapath = "/home/tmcclintock/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
         covpath  = "/home/tmcclintock/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
@@ -72,9 +79,9 @@ def get_data(zs):
         Ri    = []
         for j in xrange(0,len(zs[i])):
             Rij, Bp1ij, Berrij = np.loadtxt(datapath%(i, j), unpack=True)
-            Bp1ij  = Bp1ij[Berrij > 1e-3]
-            Rij    = Rij[Berrij > 1e-3]
-            Berrij = Berrij[Berrij > 1e-3]
+            Bp1ij  = Bp1ij[Berrij > 1e-8]
+            Rij    = Rij[Berrij > 1e-8]
+            Berrij = Berrij[Berrij > 1e-8]
             Bp1i.append(Bp1ij)
             Berri.append(Berrij)
             Ri.append(Rij)
@@ -85,7 +92,7 @@ def get_data(zs):
 
 def bestfit(Bp1, Berr, lams, zs, R):
     #Parameters: B0, C, D, E, sigma(R=1 MPC)
-    guess = [-1.0, 1.0, 1.0, -1.0, -1.0]
+    guess = [-1.0, 1.0, 2.0, -1.0, -1.0]
     nll = lambda *args: -lnprob(*args)
     result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr), 
                          method='Nelder-Mead')
@@ -110,9 +117,12 @@ def plot_BF(bf, zs, lams):
     for i in range(Nz):
         for j in range(Nl):
             Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j])
-            axarr[i,j].fill_between(R[i][j], Bp1[i][j]-Berr[i][j], Bp1[i][j]+Berr[i][j], color='b')
+            if use_blue: color='b'
+            else: color='r'
+            axarr[i,j].fill_between(R[i][j], Bp1[i][j]-Berr[i][j], Bp1[i][j]+Berr[i][j], color=color)
             axarr[i,j].plot(R[i][j], Bmodel, c='k')
 
+            axarr[i,j].fill_between([0.03,0.2],[1.8,1.8], color="lightgray", alpha=0.7, zorder=-1)
             axarr[i,j].set_xscale('log')
             axarr[i,j].set_xticks([0.1,1.0,10])
             axarr[i,j].set_yticks([1.0, 1.2, 1.4, 1.6, 1.8])
