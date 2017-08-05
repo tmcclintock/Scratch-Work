@@ -14,10 +14,10 @@ plt.rc("font", size=14)
 nwalkers = 16
 nsteps = 5000
 
-use_blue = False
+fit_blue = True
 def get_data(zs, full_data=False):
     datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
-    if use_blue:
+    if fit_blue:
         datapath = "/home/tmcclintock/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
         covpath  = "/home/tmcclintock/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
     else:
@@ -54,7 +54,7 @@ def get_data(zs, full_data=False):
         cov.append(covi)
     return Bp1, Berr, R, cov
 
-model_name = "bpl"
+model_name = "nfw"
 with_scatter = True
 
 def bestfit(Bp1, Berr, lams, zs, R, cov):
@@ -62,6 +62,7 @@ def bestfit(Bp1, Berr, lams, zs, R, cov):
     if model_name is "simple": guess = [-0.2, 0.2, -2.0, -1.0]# B0, CL, Dz, Er
     elif model_name is "r1r2": guess = [-0.2, 0.2, -2.0, 1.0, 1.0]# B0, CL, Dz, E1r, E2r
     elif model_name is "bpl" : guess = [-0.2, 0.2, -2.0, -1.0, -1.0, 10.]# B0, CL, Dz, E1r, E2r, break
+    elif model_name is "nfw" : guess = [-0.2, 0.2, -2.0, 1.0, 1.0]# B0, CL, Dz, E1r, E2r
     if with_scatter: guess.append(1e-1)
     nll = lambda *args: -lnprob(*args)
     result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, model_name), 
@@ -88,7 +89,7 @@ def plot_BF(bf, zs, lams):
     for i in range(Nz):
         for j in range(Nl):
             Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j], model_name)
-            if use_blue: color='b'
+            if fit_blue: color='b'
             else: color='r'
             axarr[i,j].fill_between(R[i][j], Bp1[i][j]-Berr[i][j], Bp1[i][j]+Berr[i][j], color=color)
             axarr[i,j].plot(R[i][j], Bmodel, c='k')

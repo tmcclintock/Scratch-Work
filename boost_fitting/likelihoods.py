@@ -23,7 +23,9 @@ def lnprior(params, pname="simple"):
         if K < 0.2: return -np.inf
         if e1 > 0 or e2 > 0: return -np.inf
     elif pname == "nfw":
-        print "working on it..."
+        if len(params)==5: b0,c,d,e1,e2 = params
+        if len(params)==6: b0,c,d,e1,e2,sigma = params
+        if e1 < 0 or e2 < 0: return - np.inf
     if b0 > 0: return -np.inf
     if c < 0: return -np.inf
     if d > 0: return -np.inf
