@@ -18,11 +18,11 @@ fit_blue = True
 def get_data(zs, full_data=False):
     datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
     if fit_blue:
-        datapath = "/home/tmcclintock/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
-        covpath  = "/home/tmcclintock/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
+        datapath = "/home/tom/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
+        covpath  = "/home/tom/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
     else:
-        datapath = "/home/tmcclintock/Desktop/boost_files/redcurves/red_z%d_l%d.txt"
-        covpath  = "/home/tmcclintock/Desktop/boost_files/redcurves/cov_z%d_l%d.txt"
+        datapath = "/home/tom/Desktop/boost_files/redcurves/red_z%d_l%d.txt"
+        covpath  = "/home/tom/Desktop/boost_files/redcurves/cov_z%d_l%d.txt"
 
     #Read in all data
     Bp1  = []
@@ -108,6 +108,31 @@ def plot_BF(bf, zs, lams):
     plt.show()
     return
 
+def plot_resid(bf, zs, lams):
+    Nz = len(zs)
+    Nl = len(zs[0])
+    fig, axarr = plt.subplots(Nz, Nl, sharex=True, sharey = True)
+    for i in range(Nz):
+        for j in range(Nl):
+            Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j], model_name)
+            if fit_blue: color='b'
+            else: color='r'
+            pdiff = (Bp1[i][j]-Bmodel)/Bmodel
+            pde   = Berr[i][j]/Bmodel
+            axarr[i,j].errorbar(R[i][j], pdiff, pde, color=color)
+            axarr[i,j].set_xscale('log')
+            axarr[i,j].set_xticks([0.1,1.0,10])
+            #axarr[i,j].set_yticks([1.0, 1.2, 1.4, 1.6, 1.8])
+            axarr[i,j].set_xlim(0.2, 40)
+            axarr[i,j].set_ylim(-0.12, 0.12)
+            axarr[i,j].grid(ls=':')
+    axarr[1,0].set_ylabel("$\Delta(1+B)/(1+B_{model})$")#r"$R\ [{\rm Mpc}]$")
+    axarr[2,3].set_xlabel(r"$R\ [{\rm Mpc}]$")
+    fig.set_size_inches(10, 5)
+    plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.15, bottom=0.15)
+    plt.show()
+
+
 def see_chain():
     fullchain = np.loadtxt("chain.txt")
     nburn = 1000
@@ -122,12 +147,13 @@ def see_chain():
     plt.show()
 
 if __name__ == "__main__":
-    zs = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanz.txt")
-    lams = np.loadtxt("/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/Y1_meanl.txt")
+    zs = np.loadtxt("/home/tom/Desktop/boost_files/Y1_meanz.txt")
+    lams = np.loadtxt("/home/tom/Desktop/boost_files/Y1_meanl.txt")
 
     Bp1, Berr, R, cov = get_data(zs)
     res = bestfit(Bp1, Berr, lams, zs, R, cov)
     Bp1, Berr, R, cov = get_data(zs, True)
-    plot_BF(res['x'], zs, lams)
+    #plot_BF(res['x'], zs, lams)
+    plot_resid(res['x'], zs, lams)
     #do_mcmc(res['x'], Bp1, Berr, lams, zs, R, cov)
     #see_chain()
