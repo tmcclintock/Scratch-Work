@@ -62,7 +62,7 @@ def bestfit(Bp1, Berr, lams, zs, R, cov):
     if model_name is "simple": guess = [-0.2, 0.2, -2.0, -1.0]# B0, CL, Dz, Er
     elif model_name is "r1r2": guess = [-0.2, 0.2, -2.0, 1.0, 1.0]# B0, CL, Dz, E1r, E2r
     elif model_name is "bpl" : guess = [-0.2, 0.2, -2.0, -1.0, -1.0, 10.]# B0, CL, Dz, E1r, E2r, break
-    elif model_name is "nfw" : guess = [-0.2, 0.2, -2.0, 1.0, 1.0]# B0, CL, Dz, E1r, E2r
+    elif model_name is "nfw" : guess = [-0.2, 0.2, -2.0, 1, 1, 1]# B0, CL, Dz, E1r, E2r, E3r
     if with_scatter: guess.append(1e-1)
     nll = lambda *args: -lnprob(*args)
     result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, model_name), 
