@@ -9,7 +9,7 @@ from chainconsumer import ChainConsumer
 plt.rc("text", usetex=True)
 plt.rc("font", size=14)
 
-fit_blue = True
+fit_blue = False
 pname = "nfw_single"
 with_scatter = True
 
@@ -151,6 +151,23 @@ def plot_resid(results, zs, lams):
     plt.show()
     return
 
+def plot_fit_variables(res, zs, lams):
+    res = np.array(res)
+    rs = res[:,:,1]
+    b0 = res[:,:,0]
+    colors = ["blue", "purple", "red"]
+    fig, ax = plt.subplots(2, sharex=True)
+    for i in range(len(zs)):
+        ax[0].plot(lams[i], rs[i], c=colors[i])
+        ax[1].plot(lams[i], b0[i], c=colors[i])
+    plt.subplots_adjust(hspace=0.0, left=0.15)
+    ax[1].set_xlabel(r"$\lambda$")
+    ax[0].set_ylabel(r"$r_s$")
+    ax[1].set_ylabel(r"$B_0$")
+    plt.show()
+    return
+            
+
 
 
 if __name__ == "__main__":
@@ -182,4 +199,5 @@ if __name__ == "__main__":
         results.append(resi)
     Bp1, Berr, R, cov = get_data(zs)#, True)
     #plot_all(results, zs, lams)
-    plot_resid(results, zs, lams)
+    #plot_resid(results, zs, lams)
+    plot_fit_variables(results, zs, lams)
