@@ -1,20 +1,62 @@
 """
-Fit the Y1 boost factors given by tamas.
+Fit one bin at a time.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as op
 import emcee
 from chainconsumer import ChainConsumer
-from models import *
-from likelihoods import *
 plt.rc("text", usetex=True)
 plt.rc("font", size=14)
 
-nwalkers = 16
-nsteps = 5000
+fit_blue = True
+model_name = "nfw_single"
+with_scatter = True
 
-fit_blue = False
+#Define the likelihoods
+def lnprior(params, pname):
+    lnp = 0
+    if pname == "nfw_single":
+        if len(params)==2: b0,rs = params
+        if len(params)==3: b0,rs,sigma = params
+        if rs < 0: return -np.inf
+        if b0 > 0: return -np.inf
+    return lnp
+
+def lnlike(params, lam, z, R, Bp1, Berr, cov, pname):
+    X = Bp1-model(params, lam, z, R, pname)
+    scatter = scatter_model(params, R, pname)
+    cov2 = np.diag(scatter)
+    icov = np.linalg.inv(cov + cov2)
+    CHI2 = np.dot(X, np.dot(icov, X))
+    return -0.5*(CHI2+np.log(np.linalg.det(cov+cov2)))
+
+def lnprob(params, lam, z, R, Bp1, Berr, cov, pname):
+    lnp = lnprior(params, pname)
+    if not np.isfinite(lnp): return -np.inf
+    return lnp + lnlike(params, lam, z, R, Bp1, Berr, cov, pname)
+
+#Boost model
+def model(params, l, z, R, pname="nfw_single"):
+    if pname == "nfw_single":
+        if len(params)==2: b0,rs = params
+        if len(params)==3: b0,rs,sigma = params
+        x = R/rs
+        i1 = np.where(x<1)[0]
+        i2 = np.where(x>1)[0]
+        Fx = np.ones_like(x)
+        Fx[i2] *=  np.arctan(np.sqrt(x[i2]**2-1))/np.sqrt(x[i2]**2-1)
+        Fx[i1] *= np.arctanh(np.sqrt(1-x[i1]**2))/np.sqrt(1-x[i1]**2)
+        #return 1.0 - b0*(l/30.0)**c*((1.+z)/1.5)**d * (1-Fx)/(x**2-1)
+        return 1.0 - b0 * (1-Fx)/(x**2-1)
+
+def scatter_model(params, R, pname):
+    if pname == "nfw_single":
+        if len(params)==2: sigma = 0
+        if len(params)==3: sigma = params[-1]
+    return (sigma/R)**2 #R is in Mpc, pivot is 1 Mpc
+
+
 def get_data(zs, full_data=False):
     datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
     if fit_blue:
@@ -23,7 +65,6 @@ def get_data(zs, full_data=False):
     else:
         datapath = "/home/tom/Desktop/boost_files/redcurves/red_z%d_l%d.txt"
         covpath  = "/home/tom/Desktop/boost_files/redcurves/cov_z%d_l%d.txt"
-
     #Read in all data
     Bp1  = []
     Berr = []
@@ -54,42 +95,19 @@ def get_data(zs, full_data=False):
         cov.append(covi)
     return Bp1, Berr, R, cov
 
-model_name = "nfw"
-with_scatter = True
-
 def bestfit(Bp1, Berr, lams, zs, R, cov):
-    #Params:   B0,   C,   D,    E, sigma(R=1 MPC)
-    if model_name is "simple": guess = [-0.2, 0.2, -2.0, -1.0]# B0, CL, Dz, Er
-    elif model_name is "r1r2": guess = [-0.2, 0.2, -2.0, 1.0, 1.0]# B0, CL, Dz, E1r, E2r
-    elif model_name is "bpl" : guess = [-0.2, 0.2, -2.0, -1.0, -1.0, 10.]# B0, CL, Dz, E1r, E2r, break
-    elif model_name is "nfw" : guess = [-0.2, 0.2, -2.0, 1., 1., 1.]# B0, CL, Dz, E1r, E2r, E3r
-    elif model_name is "nfw_single":guess= [-0.2, 1.0] #B0, Rs
+    if model_name is "nfw_single":guess= [-0.2, 1.0] #B0, Rs
     if with_scatter: guess.append(1e-1)
     nll = lambda *args: -lnprob(*args)
-    result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, model_name), 
-                         method='Nelder-Mead')
-    print result
-    return result
+    result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, model_name))
+#                         method='Nelder-Mead')
+    return result['x']
 
-def do_mcmc(bf, Bp1, Berr, lams, zs, R, cov):
-    ndim = len(bf)
-    pos = [bf + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(lams ,zs, R, Bp1, Berr, cov))
-    print "Starting MCMC"
-    sampler.run_mcmc(pos, nsteps)
-    chain = sampler.flatchain
-    print chain.shape
-    np.savetxt("chain.txt", chain)
-    print "Chain saved"
-    return
-
-def plot_BF(bf, zs, lams):
-    Nz = len(zs)
-    Nl = len(zs[0])
-    fig, axarr = plt.subplots(Nz, Nl, sharex=True, sharey = True)
-    for i in range(Nz):
-        for j in range(Nl):
-            Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j], model_name)
+def plot_all(results, zs, lams):
+    fig, axarr = plt.subplots(len(zs), len(zs[0]), sharex=True, sharey = True)
+    for i in range(len(zs)):
+        for j in range(len(zs[0])):
+            Bmodel = model(results[i][j], lams[i,j], zs[i,j], R[i][j], model_name)
             if fit_blue: color='b'
             else: color='r'
             axarr[i,j].fill_between(R[i][j], Bp1[i][j]-Berr[i][j], Bp1[i][j]+Berr[i][j], color=color)
@@ -109,20 +127,17 @@ def plot_BF(bf, zs, lams):
     plt.show()
     return
 
-def plot_resid(bf, zs, lams):
-    Nz = len(zs)
-    Nl = len(zs[0])
-    fig, axarr = plt.subplots(Nz, Nl, sharex=True, sharey = True)
-    for i in range(Nz):
-        for j in range(Nl):
-            Bmodel = model(bf, lams[i,j], zs[i,j], R[i][j], model_name)
+def plot_resid(results, zs, lams):
+    fig, axarr = plt.subplots(len(zs), len(zs[0]), sharex=True, sharey = True)
+    for i in range(len(zs)):
+        for j in range(len(zs[0])):
+            Bmodel = model(results[i][j], lams[i,j], zs[i,j], R[i][j], model_name)
             if fit_blue: color='b'
             else: color='r'
-            diff = Bp1[i][j]-Bmodel
-            axarr[i,j].errorbar(R[i][j], diff, Berr[i][j], color=color)
+            axarr[i,j].errorbar(R[i][j], Bp1[i][j]-Bmodel, Berr[i][j], color=color)
+            axarr[i,j].fill_between([0.03,0.2],[1.8,1.8], color="lightgray", alpha=0.7, zorder=-1)
             axarr[i,j].set_xscale('log')
             axarr[i,j].set_xticks([0.1,1.0,10])
-            #axarr[i,j].set_yticks([1.0, 1.2, 1.4, 1.6, 1.8])
             axarr[i,j].set_xlim(0.2, 40)
             axarr[i,j].set_ylim(-0.12, 0.12)
             axarr[i,j].grid(ls=':')
@@ -133,28 +148,29 @@ def plot_resid(bf, zs, lams):
     fig.set_size_inches(10, 5)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.15, bottom=0.15)
     plt.show()
+    return
 
-def see_chain():
-    fullchain = np.loadtxt("chain.txt")
-    nburn = 1000
-    chain = fullchain[nwalkers*nburn:]
-    if len(fullchain[0])==4:
-        labels = [r"$B_0$", r"$C_\lambda$", r"$D_z$", r"$E_R$"]
-    elif len(fullchain[0])==5:
-        labels = [r"$B_0$", r"$C_\lambda$", r"$D_z$", r"$E_R$",r"$\sigma_{1\ {\rm Mpc}}$"]
-    cc = ChainConsumer().add_chain(chain, parameters=labels, name="boost")
-    cc.plot()
-    plt.subplots_adjust(bottom=0.2, top=0.9, left=0.25, right = 0.85)
-    plt.show()
+
 
 if __name__ == "__main__":
     zs = np.loadtxt("/home/tom/Desktop/boost_files/Y1_meanz.txt")
     lams = np.loadtxt("/home/tom/Desktop/boost_files/Y1_meanl.txt")
 
     Bp1, Berr, R, cov = get_data(zs)
-    res = bestfit(Bp1, Berr, lams, zs, R, cov)
+    results = []
+    for i in range(len(zs)):
+        resi = []
+        for j in range(len(zs[0])):
+            if i is not 2:
+                resi.append([0,1,0])
+                continue
+            if j is not 5:
+                resi.append([0,1,0])
+                continue
+            print R[i][j]
+            resi.append(bestfit(Bp1[i][j], Berr[i][j], lams[i,j], zs[i,j], R[i][j], cov[i][j]))
+        print "Best fit z%d done"%(i)
+        results.append(resi)
     Bp1, Berr, R, cov = get_data(zs, True)
-    #plot_BF(res['x'], zs, lams)
-    plot_resid(res['x'], zs, lams)
-    #do_mcmc(res['x'], Bp1, Berr, lams, zs, R, cov)
-    #see_chain()
+    #plot_all(results, zs, lams)
+    plot_resid(results, zs, lams)

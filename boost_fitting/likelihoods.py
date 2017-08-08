@@ -25,36 +25,33 @@ def lnprior(params, pname="simple"):
     elif pname == "nfw":
         if len(params)==6: b0,c,d,e1,e2,e3 = params
         if len(params)==7: b0,c,d,e1,e2,e3,sigma = params
-        if e1 < 0: return - np.inf
+        if e1 < 0: return -np.inf
+    elif pname == "nfw_single":
+        if len(params)==2: b0,rs = params
+        if len(params)==3: b0,rs,sigma = params
+        c,d = -1, 1 #garbage
+        if rs < 0: return -np.inf
     if b0 > 0: return -np.inf
     if c < 0: return -np.inf
     if d > 0: return -np.inf
-    #if any(np.fabs(params)>20.0): return -np.inf
-    return 0.0
+    return lnp
 
 def lnlike(params, lams, zs, R, Bp1, Berr, covs, pname):
     LL = 0
     for i in range(len(Bp1)): #Loop over all boost files
-        for j in xrange(0,len(Bp1[i])):
-            cov = np.copy(covs[i][j])
-            Bmodel = model(params, lams[i,j], zs[i,j], R[i][j], pname)
-            X = Bp1[i][j]-Bmodel
-            scatter = scatter_model(params, R[i][j], pname)
-            
-            #cov = np.diag(np.diagonal(cov))
-            #cov2 = np.outer(np.sqrt(scatter), np.sqrt(scatter))
-            cov2 = np.diag(scatter)
-            #print cov[0], cov[2]
-            #print params
-            #print cov+cov2
-            icov = np.linalg.inv(cov + cov2)
-            CHI2 = np.dot(X, np.dot(icov, X))
-            OTHER = np.log(np.linalg.det(cov+cov2))
-            LL += CHI2.sum()
-            LL += OTHER
-            #LL += np.sum(X**2/(Berr[i][j]**2+scatter)+\
-            #                 np.log(Berr[i][j]**2+scatter))
-    return -0.5*LL
+        for j in xrange(3,len(Bp1[i])):
+            LL += lnlike_single(params, lams[i,j], zs[i,j], R[i][j], Bp1[i][j],\
+                                Berr[i][j], covs[i][j], pname)
+    return LL
+
+def lnlike_single(params, lam, z, R, Bp1, Berr, cov, pname):
+    Bmodel = model(params, lam, z, R, pname)
+    X = Bp1-Bmodel
+    scatter = scatter_model(params, R, pname)
+    cov2 = np.diag(scatter)
+    icov = np.linalg.inv(cov + cov2)
+    CHI2 = np.dot(X, np.dot(icov, X))
+    return -0.5*(CHI2+np.log(np.linalg.det(cov+cov2)))
 
 def lnprob(params, lams, zs, R, Bp1, Berr, cov, pname):
     lnp = lnprior(params, pname)
