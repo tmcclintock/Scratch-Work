@@ -10,7 +10,7 @@ plt.rc("text", usetex=True)
 plt.rc("font", size=14)
 
 fit_blue = True
-model_name = "nfw_single"
+pname = "nfw_single"
 with_scatter = True
 
 #Define the likelihoods
@@ -26,6 +26,7 @@ def lnprior(params, pname):
 def lnlike(params, lam, z, R, Bp1, Berr, cov, pname):
     X = Bp1-model(params, lam, z, R, pname)
     scatter = scatter_model(params, R, pname)
+    cov = np.diag(np.diagonal(cov))
     cov2 = np.diag(scatter)
     icov = np.linalg.inv(cov + cov2)
     CHI2 = np.dot(X, np.dot(icov, X))
@@ -96,10 +97,10 @@ def get_data(zs, full_data=False):
     return Bp1, Berr, R, cov
 
 def bestfit(Bp1, Berr, lams, zs, R, cov):
-    if model_name is "nfw_single":guess= [-0.2, 1.0] #B0, Rs
+    if pname is "nfw_single":guess= [-0.2, 1.0] #B0, Rs
     if with_scatter: guess.append(1e-1)
     nll = lambda *args: -lnprob(*args)
-    result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, model_name))
+    result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, pname))
 #                         method='Nelder-Mead')
     return result['x']
 
@@ -107,7 +108,7 @@ def plot_all(results, zs, lams):
     fig, axarr = plt.subplots(len(zs), len(zs[0]), sharex=True, sharey = True)
     for i in range(len(zs)):
         for j in range(len(zs[0])):
-            Bmodel = model(results[i][j], lams[i,j], zs[i,j], R[i][j], model_name)
+            Bmodel = model(results[i][j], lams[i,j], zs[i,j], R[i][j], pname)
             if fit_blue: color='b'
             else: color='r'
             axarr[i,j].fill_between(R[i][j], Bp1[i][j]-Berr[i][j], Bp1[i][j]+Berr[i][j], color=color)
@@ -131,7 +132,7 @@ def plot_resid(results, zs, lams):
     fig, axarr = plt.subplots(len(zs), len(zs[0]), sharex=True, sharey = True)
     for i in range(len(zs)):
         for j in range(len(zs[0])):
-            Bmodel = model(results[i][j], lams[i,j], zs[i,j], R[i][j], model_name)
+            Bmodel = model(results[i][j], lams[i,j], zs[i,j], R[i][j], pname)
             if fit_blue: color='b'
             else: color='r'
             axarr[i,j].errorbar(R[i][j], Bp1[i][j]-Bmodel, Berr[i][j], color=color)
@@ -141,7 +142,7 @@ def plot_resid(results, zs, lams):
             axarr[i,j].set_xlim(0.2, 40)
             axarr[i,j].set_ylim(-0.12, 0.12)
             axarr[i,j].grid(ls=':')
-            axarr[i,j].axhline(0.02, c='k', ls='--', zorder=-1)
+            axarr[i,j].axhline(0.015, c='k', ls='--', zorder=-1)
             axarr[i,j].axhline(-0.02, c='k', ls='--', zorder=-1)
     axarr[1,0].set_ylabel("$\Delta(1+B)$")#r"$R\ [{\rm Mpc}]$")
     axarr[2,3].set_xlabel(r"$R\ [{\rm Mpc}]$")
@@ -161,16 +162,24 @@ if __name__ == "__main__":
     for i in range(len(zs)):
         resi = []
         for j in range(len(zs[0])):
+            """
             if i is not 2:
                 resi.append([0,1,0])
                 continue
             if j is not 5:
                 resi.append([0,1,0])
                 continue
-            print R[i][j]
-            resi.append(bestfit(Bp1[i][j], Berr[i][j], lams[i,j], zs[i,j], R[i][j], cov[i][j]))
+            """
+            res = bestfit(Bp1[i][j], Berr[i][j], lams[i,j], zs[i,j], R[i][j], cov[i][j])
+            #print res
+            #print lnlike(res, lams[i][j], zs[i][j], R[i][j], Bp1[i][j], Berr[i][j], cov[i][j], pname)
+            #res[0] -=0.02
+            #print lnlike(res, lams[i][j], zs[i][j], R[i][j], Bp1[i][j], Berr[i][j], cov[i][j], pname)
+            resi.append(res)
+                
+
         print "Best fit z%d done"%(i)
         results.append(resi)
-    Bp1, Berr, R, cov = get_data(zs, True)
+    Bp1, Berr, R, cov = get_data(zs)#, True)
     #plot_all(results, zs, lams)
     plot_resid(results, zs, lams)
