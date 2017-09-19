@@ -61,11 +61,11 @@ def scatter_model(params, R, pname):
 def get_data(zs, full_data=False):
     datapath = "/home/tmcclintock/Desktop/des_wl_work/Y1_work/data_files/blinded_tamas_files/full-mcal-raw_y1clust_l%d_z%d_pz_boost.dat"
     if fit_blue:
-        datapath = "/home/tom/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
-        covpath  = "/home/tom/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
+        datapath = "/home/tmcclintock/Desktop/boost_files/bluecurves/blue_z%d_l%d.txt"
+        covpath  = "/home/tmcclintock/Desktop/boost_files/bluecurves/cov_z%d_l%d.txt"
     else:
-        datapath = "/home/tom/Desktop/boost_files/redcurves/red_z%d_l%d.txt"
-        covpath  = "/home/tom/Desktop/boost_files/redcurves/cov_z%d_l%d.txt"
+        datapath = "/home/tmcclintock/Desktop/boost_files/redcurves/red_z%d_l%d.txt"
+        covpath  = "/home/tmcclintock/Desktop/boost_files/redcurves/cov_z%d_l%d.txt"
     #Read in all data
     Bp1  = []
     Berr = []
@@ -118,7 +118,7 @@ def plot_all(results, zs, lams):
             axarr[i,j].set_xscale('log')
             axarr[i,j].set_xticks([0.1,1.0,10])
             axarr[i,j].set_yticks([1.0, 1.2, 1.4, 1.6, 1.8])
-            axarr[i,j].set_xlim(0.03, 40)
+            axarr[i,j].set_xlim(0.2, 40)
             axarr[i,j].set_ylim(0.8, 1.8)
             axarr[i,j].grid(ls=':')
     axarr[1,0].set_ylabel("Boost Factor")#r"$R\ [{\rm Mpc}]$")
@@ -144,10 +144,11 @@ def plot_resid(results, zs, lams):
             axarr[i,j].grid(ls=':')
             axarr[i,j].axhline(0.015, c='k', ls='--', zorder=-1)
             axarr[i,j].axhline(-0.02, c='k', ls='--', zorder=-1)
-    axarr[1,0].set_ylabel("$\Delta(1+B)$")#r"$R\ [{\rm Mpc}]$")
+    axarr[1,0].set_ylabel("\% diff")#"$\Delta(1+B)$")#r"$R\ [{\rm Mpc}]$")
     axarr[2,3].set_xlabel(r"$R\ [{\rm Mpc}]$")
     fig.set_size_inches(10, 5)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.15, bottom=0.15)
+    plt.savefig("boost_factor_resid.png", transparent=True)
     plt.show()
     return
 
@@ -171,8 +172,8 @@ def plot_fit_variables(res, zs, lams):
 
 
 if __name__ == "__main__":
-    zs = np.loadtxt("/home/tom/Desktop/boost_files/Y1_meanz.txt")
-    lams = np.loadtxt("/home/tom/Desktop/boost_files/Y1_meanl.txt")
+    zs = np.loadtxt("/home/tmcclintock/Desktop/boost_files/Y1_meanz.txt")
+    lams = np.loadtxt("/home/tmcclintock/Desktop/boost_files/Y1_meanl.txt")
 
     Bp1, Berr, R, cov = get_data(zs)
     results = []
@@ -197,7 +198,7 @@ if __name__ == "__main__":
 
         print "Best fit z%d done"%(i)
         results.append(resi)
-    Bp1, Berr, R, cov = get_data(zs)#, True)
+    Bp1, Berr, R, cov = get_data(zs, True)
     #plot_all(results, zs, lams)
-    #plot_resid(results, zs, lams)
-    plot_fit_variables(results, zs, lams)
+    plot_resid(results, zs, lams)
+    #plot_fit_variables(results, zs, lams)
