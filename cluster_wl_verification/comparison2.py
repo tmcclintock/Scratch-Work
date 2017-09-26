@@ -32,6 +32,9 @@ DS = outdict['delta_sigma']
 aDS = outdict['ave_delta_sigma']
 Rb = outdict['Rbins']
 
+Redges = np.logspace(np.log(0.0323), np.log(30.0), num=15+1)
+print Redges
+
 
 from scipy.interpolate import InterpolatedUnivariateSpline as IUS
 dsspl = IUS(R, DS)
