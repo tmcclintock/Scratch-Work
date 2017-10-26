@@ -11,7 +11,7 @@ plt.rc("font", size=14)
 
 fit_blue = False
 pname = "nfw_single"
-with_scatter = True
+with_scatter = False
 
 #Define the likelihoods
 def lnprior(params, pname):
@@ -20,7 +20,7 @@ def lnprior(params, pname):
         if len(params)==2: b0,rs = params
         if len(params)==3: b0,rs,sigma = params
         if rs < 0: return -np.inf
-        if b0 > 0: return -np.inf
+        if b0 < 0: return -np.inf
     return lnp
 
 def lnlike(params, lam, z, R, Bp1, Berr, cov, pname):
@@ -48,8 +48,7 @@ def model(params, l, z, R, pname="nfw_single"):
         Fx = np.ones_like(x)
         Fx[i2] *=  np.arctan(np.sqrt(x[i2]**2-1))/np.sqrt(x[i2]**2-1)
         Fx[i1] *= np.arctanh(np.sqrt(1-x[i1]**2))/np.sqrt(1-x[i1]**2)
-        #return 1.0 - b0*(l/30.0)**c*((1.+z)/1.5)**d * (1-Fx)/(x**2-1)
-        return 1.0 - b0 * (1-Fx)/(x**2-1)
+        return 1.0 + b0 * (1-Fx)/(x**2-1)
 
 def scatter_model(params, R, pname):
     if pname == "nfw_single":
@@ -97,7 +96,7 @@ def get_data(zs, full_data=False):
     return Bp1, Berr, R, cov
 
 def bestfit(Bp1, Berr, lams, zs, R, cov):
-    if pname is "nfw_single":guess= [-0.2, 1.0] #B0, Rs
+    if pname is "nfw_single":guess= [0.2, 1.0] #B0, Rs
     if with_scatter: guess.append(1e-1)
     nll = lambda *args: -lnprob(*args)
     result = op.minimize(nll, guess, args=(lams, zs, R, Bp1, Berr, cov, pname))
@@ -189,7 +188,7 @@ if __name__ == "__main__":
                 continue
             """
             res = bestfit(Bp1[i][j], Berr[i][j], lams[i,j], zs[i,j], R[i][j], cov[i][j])
-            #print res
+            print res
             #print lnlike(res, lams[i][j], zs[i][j], R[i][j], Bp1[i][j], Berr[i][j], cov[i][j], pname)
             #res[0] -=0.02
             #print lnlike(res, lams[i][j], zs[i][j], R[i][j], Bp1[i][j], Berr[i][j], cov[i][j], pname)
@@ -199,6 +198,6 @@ if __name__ == "__main__":
         print "Best fit z%d done"%(i)
         results.append(resi)
     Bp1, Berr, R, cov = get_data(zs, True)
-    #plot_all(results, zs, lams)
-    plot_resid(results, zs, lams)
+    plot_all(results, zs, lams)
+    #plot_resid(results, zs, lams)
     #plot_fit_variables(results, zs, lams)
