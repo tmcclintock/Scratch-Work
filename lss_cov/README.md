@@ -1,1 +1,0 @@
-This subdirectory is for creating the supplementary files needed to calculate the LSS part of the covariance matrix for the DES Y1 cluster WL analysis.
