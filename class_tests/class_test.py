@@ -4,11 +4,11 @@ This is a test for using the CLASS module.
 from classy import Class
 import numpy as np
 
-Ob = 0.049017
-Om = 0.31834
+Ob = 0.047
+Om = 0.286
 Ocdm = Om - Ob
 
-params = {
+"""params = {
     'output': 'mPk transfer',
     "h":0.670435,
     "A_s":2.1e-9,
@@ -18,11 +18,22 @@ params = {
     'YHe':0.24755048455476272,#By hand, default value
     'P_k_max_1/Mpc':2000,
     'z_pk':0.5,
-    'non linear':'halofit'}
+    'non linear':'halofit'}"""
+params = {
+    'output': 'mPk transfer',
+    "h":0.7,
+    "ln10^{10}A_s":3.065525,
+    "n_s":0.96,
+    "Omega_b":Ob,
+    "Omega_cdm":Ocdm,
+    'P_k_max_1/Mpc':100,
+    'z_pk':0.0}
 
 cosmo = Class()
 
 cosmo.set(params)
+print cosmo.sigma8()
+exit()
 
 
 cosmo.compute()
