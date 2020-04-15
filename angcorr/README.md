@@ -1,1 +1,0 @@
-This has my implementation of the angular correlation function w(theta).

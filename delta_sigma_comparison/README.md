@@ -1,1 +1,0 @@
-Here, I am testing two of my codes that do similar things: the DeltaSigma code that calculates DeltaSigma from theory, and the Build_Delta_Sigma code that projects a DeltaSigma curve from a given Xi_hm, measured or from theory. This is essentially a big regression test.
