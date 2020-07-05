@@ -1,4 +1,5 @@
 *.pdf
+*.png
 
 DES_cov_comparison/Y1*.txt
 DES_cov_comparison/all_covs
